@@ -28,17 +28,17 @@ Program::Program(const std::string& vertexShaderPath, const std::string& fragmen
     glLinkProgram(program);
 }
 
-void Program::use(){
+void Program::use() const{
     glUseProgram(program);
 }
 
-Program& Program::uniform(const std::string& name, std::function<void(GLint64)> fun){
+const Program& Program::uniform(const std::string& name, std::function<void(GLint64)> fun) const {
     auto loc = glGetUniformLocation(program, name.c_str());
     fun(loc);
     return *this;
 }
 
-Program& Program::uniformMat4(const std::string& name, const glm::mat4x4& mat){
+const Program& Program::uniformMat4(const std::string& name, const glm::mat4x4& mat) const {
     return uniform(name, [name, mat](GLint loc){
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
     });

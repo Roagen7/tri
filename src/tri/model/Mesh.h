@@ -4,20 +4,20 @@
 #include <memory>
 #include <optional>
 
-
+#include "../program/Program.h"
 #include <glad/glad.h>
 #include <glm/vec3.hpp>
 
 class Mesh {
 
 public:    
-    Mesh();
+    Mesh() = default;
 
     Mesh& setVertices(std::vector<glm::vec3> vertices);
     Mesh& setIndices(std::vector<glm::ivec3> indices);
     Mesh& setColors(std::vector<glm::vec3> colors);
 
-    void draw();
+    void draw() const;
 
     ~Mesh();
 private:

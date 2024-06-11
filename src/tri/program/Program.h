@@ -9,14 +9,14 @@ class Program {
 public:
     Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
-    void use();
+    void use() const;
     
 
-    Program& uniform(const std::string& name, 
+    const Program& uniform(const std::string& name, 
         std::function<void(GLint64)> fun
-    );
+    ) const;
 
-    Program& uniformMat4(const std::string& name, const glm::mat4x4& mat);
+    const Program& uniformMat4(const std::string& name, const glm::mat4x4& mat) const;
 
     ~Program(){
         glDeleteProgram(program);

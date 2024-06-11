@@ -1,9 +1,6 @@
 #include "Mesh.h"
 #include <glad/glad.h>
 
-Mesh::Mesh(){
-
-}
 
 Mesh& Mesh::setVertices(std::vector<glm::vec3> vertices){
     this->vertices = vertices;
@@ -16,7 +13,7 @@ Mesh& Mesh::setIndices(std::vector<glm::ivec3> indices){
     return *this;
 }
 
-void Mesh::draw(){
+void Mesh::draw() const{
     glBindVertexArray(VAO);
 
     if(indices){
