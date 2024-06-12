@@ -10,14 +10,15 @@ class Model {
 public:
     Model() = default;
 
-    void setRotation(glm::vec3 rotation);
+    void setRotationXYZ(glm::vec3 rotation);
     void setTranslation(glm::vec3 translation);
 
     void add(const Mesh& mesh);
     void draw(const Program& program, const Camera& camera);
 
 private:
-    glm::vec3 rotation;
-    glm::vec3 translation;
+    // TODO: change to quaternion
+    glm::vec3 rotation{};
+    glm::vec3 translation{};
     std::vector<Mesh> meshes;
 };

@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../program/Program.h"
 
-void Model::setRotation(glm::vec3 rotation){
+void Model::setRotationXYZ(glm::vec3 rotation){
     this->rotation = rotation;
 }
 
@@ -17,8 +17,10 @@ void Model::add(const Mesh& mesh){
 
 
 void Model::draw(const Program& program, const Camera& camera){        
-    auto model = glm::translate(glm::identity<glm::mat4x4>(), glm::vec3(0.0f, 0.0f, -glfwGetTime())) 
-    * glm::rotate(glm::identity<glm::mat4x4>(), (float) glfwGetTime(), {1.0, 0.3, .5f});
+    auto model = glm::translate(glm::identity<glm::mat4x4>(), translation) 
+    * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.x, {1, 0, 0})
+    * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.y, {0, 1, 0})
+    * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.z, {0, 0, 1});
     
     program.use();
     program.uniformMat4("MVP", camera.view() * model);

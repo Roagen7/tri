@@ -1,6 +1,5 @@
-#define GLFW_INCLUDE_NONE
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glfwinclude.h"
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -15,6 +14,7 @@
 #include <tri/model/Mesh.h>
 #include <tri/Camera.h>
 #include <tri/model/Model.h>
+#include <util/window_init.h>
 
 
 std::vector<glm::vec3> vertices = {
@@ -63,69 +63,31 @@ const std::vector<glm::vec3> colors = {
     {0.f, 0.f, 1.f}
 };
 
-static void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
 int main(void){
-    GLFWwindow* window;
-    Renderer renderer(*window);
-    
 
-    glfwSetErrorCallback(error_callback);
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
+    static constexpr auto width = 640;
+    static constexpr auto height = 480;
 
-    glfwSetKeyCallback(window, key_callback);
-    glfwMakeContextCurrent(window);
-    
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    glfwSwapInterval(1);
-
-    DefaultProgram prg;
-    auto program = prg.program;
-
-    int width, height;
-        
-    glfwGetFramebufferSize(window, &width, &height);
+    Window window("example", width, height);
+            
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     Model model;
     Mesh mesh;
     //mesh.setVertices(vertices).setColors(colors).setIndices(indices);
     mesh.setVertices(vertices).setIndices(indices);
-
     model.add(mesh);
 
-    while (!glfwWindowShouldClose(window))
-    {
-        float ratio;
-        int width, height;
-        glm::mat4x4 m, p, mvp;
-        glfwGetFramebufferSize(window, &width, &height);
-        ratio = width / (float) height;
-        glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT);
+    Renderer renderer(*window.get(), camera);
+    renderer.add(model);
 
-        model.draw(prg, camera);
- 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-        camera.poll(window);
+    static constexpr auto R = 3.0;
+
+    while (!glfwWindowShouldClose(window.get()))
+    {
+        renderer.render();
+        auto theta = glfwGetTime();
+        model.setRotationXYZ({theta, theta, 0});
+        model.setTranslation({R * sin(theta), R * cos(theta), 0});
+        camera.poll(window.get());
     }
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
 }
