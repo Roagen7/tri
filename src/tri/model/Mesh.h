@@ -26,6 +26,7 @@ private:
     std::optional<std::vector<glm::vec3>> vertices{};
     std::optional<std::vector<glm::ivec3>> indices{};
     std::optional<std::vector<glm::vec3>> colors{};
+    std::optional<std::vector<glm::vec3>> normals{};
 
     GLuint VAO, VBOverts, VBOcolors, EBO;
 };

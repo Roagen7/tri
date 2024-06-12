@@ -33,6 +33,8 @@ Window::Window(const std::string& title, int width, int height){
     
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_CLAMP);
 }
 
 GLFWwindow* Window::get(){

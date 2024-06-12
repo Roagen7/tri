@@ -8,13 +8,27 @@
 #include <stdio.h>
 #include <tri/Renderer.h>
 #include <tri/program/Program.h>
-#include <tri/program/programs/DefaultProgram.h>
+#include <tri/program/materials/SolidMaterial.h>
+#include <tri/program/materials/LightMaterial.h>
 #include <util/files.h>
 #include <iostream>
 #include <tri/model/Mesh.h>
 #include <tri/Camera.h>
 #include <tri/model/Model.h>
 #include <util/window_init.h>
+
+
+/*
+small TODO list:
+> add on-the-fly normals calculation
+> add light support
+> add selection of different programs to models
+> change the above programs to materials
+> add solid color material
+> add texture material
+> add no light material
+> add debug material
+*/
 
 
 std::vector<glm::vec3> vertices = {
@@ -72,22 +86,32 @@ int main(void){
             
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     Model model;
+    Model lightModel;
     Mesh mesh;
-    //mesh.setVertices(vertices).setColors(colors).setIndices(indices);
+    Mesh lightPos;
+    lightPos.setVertices(vertices).setIndices(indices);
     mesh.setVertices(vertices).setIndices(indices);
     model.add(mesh);
+    model.setMaterial<SolidMaterial>();
+    lightModel.add(lightPos);
+    lightModel.setMaterial<LightMaterial>();
+    
 
     Renderer renderer(*window.get(), camera);
     renderer.add(model);
+    renderer.add(lightModel);
 
-    static constexpr auto R = 3.0;
+    static constexpr auto R = 2.0;
+
+    lightModel.setTranslation({0, 0.0, -5.0});
 
     while (!glfwWindowShouldClose(window.get()))
     {
         renderer.render();
         auto theta = glfwGetTime();
         model.setRotationXYZ({theta, theta, 0});
-        model.setTranslation({R * sin(theta), R * cos(theta), 0});
+        model.setTranslation({R * sin(theta), R * cos(theta), -5.0});
+        
         camera.poll(window.get());
     }
 }

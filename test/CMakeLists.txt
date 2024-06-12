@@ -13,7 +13,7 @@ endif()
 FetchContent_MakeAvailable(googletest)
 
 add_executable(engine_test 
-  example.cpp
+  sample_cube.cpp
 )
 
 target_link_libraries(
@@ -21,6 +21,9 @@ target_link_libraries(
   tri
   GTest::gtest_main
   gmock_main
+  glfw
+  glm
+  util
 )
 
 target_include_directories(engine_test PUBLIC ${SOURCE_DIR} ${TEST_DIR})

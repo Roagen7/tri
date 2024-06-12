@@ -11,6 +11,10 @@ glm::mat4 Camera::view(float zFar) const{
 }
 
 void Camera::poll(GLFWwindow *window) {
+    int iWidth, iHeight;
+    glfwGetWindowSize(window, &iWidth, &iHeight);
+    w = iWidth; h = iHeight;
+
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
         pos += dir * speed;
     }

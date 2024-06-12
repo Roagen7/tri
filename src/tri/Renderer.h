@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "./model/Model.h"
-#include "./program/programs/DefaultProgram.h"
+#include "./light/LightSource.h"
 
 class Renderer {
 
@@ -14,11 +14,12 @@ public:
     Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {};
     void render();
     void add(Model& model);
+    void add(PointLight ptLight);
 
 private:
-    DefaultProgram program;
     GLFWwindow& window;
     Camera& camera;
     std::vector<Model*> models;
+    PointLight pointLights;
 
 };

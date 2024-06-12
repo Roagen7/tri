@@ -7,10 +7,12 @@
 
 static constexpr auto DEFAULT_PATH = "default";
 
-class DefaultProgram : public Program {
+class SolidMaterial : public Program {
 public:
-    DefaultProgram():Program(
+    SolidMaterial():Program(
         fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEFAULT_PATH), 
-        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEFAULT_PATH)) {}
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEFAULT_PATH),
+        fmt::format("{}/{}/gs.glsl", SHADER_PATH, DEFAULT_PATH)
+        ) {}
 
 };
