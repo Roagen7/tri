@@ -18,17 +18,19 @@
 #include <tri/Camera.h>
 #include <tri/model/Model.h>
 #include <util/window_init.h>
+#include <tri/texture/Texture.h>
+#include <tri/program/materials/TextureMaterial.h>
 
 
 /*
 small TODO list:
-> add texture support
-> add texture and specular map support
+> add cubemaps (skybox)
+> add different light type (directional)
+> add diffuse and specular map support
 > add loading mesh from file
-> add texture material
 > add debug material
 > add default material
-> add different light type
+> add sprites
 */
 
 int main(void){
@@ -42,23 +44,26 @@ int main(void){
     Model model;
     Model model2;
     model2.setMesh(Plane());
-    model2.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 128.0);
+    //model2.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 128.0);
+    
+    model2.setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
     Model lightModel;
     Model lightModel2;
     model.setMesh(Cube());
     model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
+
     lightModel.setMesh(Cube());
     lightModel.setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
     lightModel2.setMesh(Cube());
     lightModel2.setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
     
     Renderer renderer(*window.get(), camera);
+    renderer.setSkybox({0.2, 0.2, 0.2});
     renderer.add(model);
     renderer.add(lightModel);
     renderer.add(lightModel2);
     renderer.add(model2);
 
-    //PointLight(vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, 1.0), 1, 0.0, 0.5);
     renderer.addLightSource({
         .pos = {0, 0, -4.0},
         .color = {1, 1, 1},

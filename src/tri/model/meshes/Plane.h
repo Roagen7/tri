@@ -22,6 +22,13 @@ public:
             {0, 1, 0}
         });
 
+        texture = std::vector<glm::vec2>({
+            {0, 0},
+            {0, 1},
+            {1, 0},
+            {1, 1}
+        });
+
         setup();
     }
 

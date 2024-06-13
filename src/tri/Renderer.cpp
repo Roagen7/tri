@@ -6,6 +6,8 @@ void Renderer::render(){
     int width, height;
     glfwGetFramebufferSize(&window, &width, &height);
     glViewport(0, 0, width, height);
+
+    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto model : this->models){
@@ -36,6 +38,10 @@ void Renderer::setupLights(const Program& material){
         material.uniformFloat(fmt::format("{}.linear", prefix), light.attentuation.linear);
         material.uniformFloat(fmt::format("{}.quadratic", prefix), light.attentuation.quadratic);
     }
+}
+
+void Renderer::setSkybox(glm::vec3 color){
+    bgColor = color;
 }
 
 

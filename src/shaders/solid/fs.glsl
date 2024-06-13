@@ -2,6 +2,12 @@
 
 #define MAX_POINT_LIGHTS 10
 
+// ------ textures -----
+uniform int hasTexture;
+uniform sampler2D texture0;
+
+// ------ textures end ----
+
 // ------ shader config params -------
 uniform int hasSpecularMap;
 uniform int hasDiffuseMap;
@@ -32,6 +38,7 @@ uniform float ambientIntensity;
 in vec3 col;
 in vec3 normal;
 in vec4 worldPos;
+in vec2 texPos;
 
 vec3 lightPos = vec3(0.0, 0.0, -4.0);
 vec3 lightColor = vec3(1.0, 1.0, 1.0);
@@ -79,11 +86,14 @@ void main()
         outColor +=  calcPointLight(uPointLights[i]);
     }
 
-    outColor *= col;
+    if (hasTexture == 1){
+        outColor *= texture(texture0, texPos).xyz;
+    } else {
+        outColor *= col;
+    }
 
     outColor.x = min(outColor.x, 1.0);
     outColor.y = min(outColor.y, 1.0);
     outColor.z = min(outColor.z, 1.0);
-
     gl_FragColor = vec4(outColor, 1.0);
 }

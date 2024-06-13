@@ -10,7 +10,7 @@ class Program {
 public:
     Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath="");
 
-    void use() const;
+    virtual void use() const;
     
 
     const Program& uniform(const std::string& name, 

@@ -27,5 +27,8 @@ public:
         uniformFloat("uDiffuse", diffuse);
         uniformFloat("uSpecular", specular);
         uniformFloat("uShininess", shininess);
+        uniformInt("hasTexture", 0);
+        uniformInt("hasSpecularMap", 0);
+        uniformInt("hasDiffuseMap", 0);
     }
 };

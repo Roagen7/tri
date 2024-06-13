@@ -41,6 +41,14 @@ Mesh& Mesh::setColors(std::vector<glm::vec3> colors){
     return *this;
 }
 
+Mesh& Mesh::setTextureUnits(std::vector<glm::vec2> textureUnits){
+    isNotPredefinedMesh();
+    this->texture = textureUnits;
+    setup();
+    return *this;
+}
+
+
 void Mesh::setup(){
     cleanup();
     glGenVertexArrays(1, &VAO);
@@ -68,12 +76,20 @@ void Mesh::setup(){
         glEnableVertexAttribArray(1);
     }
 
+    if(texture){
+        glGenBuffers(1, &VBOtexture);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOtexture);
+        glBufferData(GL_ARRAY_BUFFER, texture->size() * sizeof(GLfloat) * 2, texture->data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(2);
+    }
+
     if(colors){
         glGenBuffers(1, &VBOcolors);
         glBindBuffer(GL_ARRAY_BUFFER, VBOcolors);
         glBufferData(GL_ARRAY_BUFFER, colors->size() * sizeof(GLfloat) * 3, colors->data(), GL_STATIC_DRAW);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(3);
     }
 
     glBindVertexArray(0);

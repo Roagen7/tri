@@ -21,6 +21,11 @@ public:
     void addLightSource(PointLight light);
     void setAmbientLight(AmbientLight light);
 
+    // for now only solid color
+    void setSkybox(glm::vec3 color);
+
+    // TODO
+    void setSkybox(/*cubemap*/);
 private:
 
     void setupLights(const Program& material);
@@ -28,6 +33,7 @@ private:
     GLFWwindow& window;
     Camera& camera;
     std::vector<Model*> models;
+    glm::vec3 bgColor{};
 
     std::vector<PointLight> pointLights;
     AmbientLight ambientLight;

@@ -25,7 +25,7 @@ public:
 
     template<typename T, typename... A>
     void setMaterial(A&&... args){
-        this->material = std::make_unique<T>(args...);
+        this->material = std::make_unique<T>(std::forward<A>(args)...);
     }
     
     void setScaleXYZ(glm::vec3 scale);

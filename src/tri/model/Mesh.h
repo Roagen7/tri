@@ -9,7 +9,7 @@
 #include <glm/vec3.hpp>
 #include <iostream>
 
-class Mesh {
+class Mesh { 
 
 public:    
     Mesh() = default;
@@ -18,6 +18,8 @@ public:
     Mesh& setIndices(std::vector<glm::ivec3> indices);
     Mesh& setColors(std::vector<glm::vec3> colors);
     Mesh& setNormals(std::vector<glm::vec3> normals);
+    Mesh& setTextureUnits(std::vector<glm::vec2> normals);
+
 
     void draw() const;
 
@@ -30,11 +32,13 @@ protected:
     std::optional<std::vector<glm::ivec3>> indices{};
     std::optional<std::vector<glm::vec3>> colors{};
     std::optional<std::vector<glm::vec3>> normals{};
+    std::optional<std::vector<glm::vec2>> texture{};
+
 private:
     void cleanup();
   
 
-    GLuint VAO, VBOverts, VBOcolors, VBOnormals, EBO;
+    GLuint VAO, VBOverts, VBOcolors, VBOnormals, VBOtexture, EBO;
 };
 
 class PredefinedMesh : public Mesh{
