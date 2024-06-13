@@ -5,14 +5,26 @@
 
 #include "shader_path.h"
 
-static constexpr auto DEFAULT_PATH = "default";
+static constexpr auto SOLID = "solid";
+static constexpr auto CALCULATE_NORMALS = "calculate_normals";
+
+class SolidMaterialShaderNormals : public Program {
+public:
+    SolidMaterialShaderNormals():Program(
+        fmt::format("{}/{}/vs.glsl", SHADER_PATH, CALCULATE_NORMALS), 
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, CALCULATE_NORMALS),
+        fmt::format("{}/{}/gs.glsl", SHADER_PATH, CALCULATE_NORMALS)
+        ) {}
+};
 
 class SolidMaterial : public Program {
 public:
-    SolidMaterial():Program(
-        fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEFAULT_PATH), 
-        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEFAULT_PATH),
-        fmt::format("{}/{}/gs.glsl", SHADER_PATH, DEFAULT_PATH)
-        ) {}
-
+    SolidMaterial(glm::vec3 color, float diffuse=1.0, float specular=1.0):Program(
+        fmt::format("{}/{}/vs.glsl", SHADER_PATH, SOLID), 
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, SOLID)
+    ) {
+        uniformVec3("uColor", color);
+        uniformFloat("uDiffuse", diffuse);
+        uniformFloat("uSpecular", specular);
+    }
 };

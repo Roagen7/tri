@@ -3,12 +3,21 @@
 
 
 Mesh& Mesh::setVertices(std::vector<glm::vec3> vertices){
+    isNotPredefinedMesh();
     this->vertices = vertices;
     setup();
     return *this;
 }
 Mesh& Mesh::setIndices(std::vector<glm::ivec3> indices){
+    isNotPredefinedMesh();
     this->indices = indices;
+    setup();
+    return *this;
+}
+
+Mesh& Mesh::setNormals(std::vector<glm::vec3> normals){
+    isNotPredefinedMesh();
+    this->normals = normals;
     setup();
     return *this;
 }
@@ -26,6 +35,7 @@ void Mesh::draw() const{
 
 
 Mesh& Mesh::setColors(std::vector<glm::vec3> colors){
+    isNotPredefinedMesh();
     this->colors = colors;
     setup();
     return *this;
@@ -50,12 +60,20 @@ void Mesh::setup(){
         glEnableVertexAttribArray(0);
     }
 
+    if(normals){
+        glGenBuffers(1, &VBOnormals);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOnormals);
+        glBufferData(GL_ARRAY_BUFFER, normals->size() * sizeof(GLfloat) * 3, normals->data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(1);
+    }
+
     if(colors){
         glGenBuffers(1, &VBOcolors);
         glBindBuffer(GL_ARRAY_BUFFER, VBOcolors);
         glBufferData(GL_ARRAY_BUFFER, colors->size() * sizeof(GLfloat) * 3, colors->data(), GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(2);
     }
 
     glBindVertexArray(0);
@@ -67,6 +85,7 @@ void Mesh::cleanup(){
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBOcolors);
     glDeleteBuffers(1, &VBOverts);
+    glDeleteBuffers(1, &VBOnormals);
     glDeleteBuffers(1, &EBO);
 }
 

@@ -10,6 +10,7 @@
 #include <tri/program/Program.h>
 #include <tri/program/materials/SolidMaterial.h>
 #include <tri/program/materials/LightMaterial.h>
+#include <tri/model/meshes/Cube.h>
 #include <util/files.h>
 #include <iostream>
 #include <tri/model/Mesh.h>
@@ -20,62 +21,14 @@
 
 /*
 small TODO list:
-> add on-the-fly normals calculation
-> add light support
-> add selection of different programs to models
-> change the above programs to materials
+> add light support (multiple light sources)
 > add solid color material
+> add texture support
+> add loading mesh from file
 > add texture material
-> add no light material
 > add debug material
+> add default material
 */
-
-
-std::vector<glm::vec3> vertices = {
-    glm::vec3(-0.5f, -0.5f, -0.5f), // 0
-    glm::vec3( 0.5f, -0.5f, -0.5f), // 1
-    glm::vec3( 0.5f,  0.5f, -0.5f), // 2
-    glm::vec3(-0.5f,  0.5f, -0.5f), // 3
-    glm::vec3(-0.5f, -0.5f,  0.5f), // 4
-    glm::vec3( 0.5f, -0.5f,  0.5f), // 5
-    glm::vec3( 0.5f,  0.5f,  0.5f), // 6
-    glm::vec3(-0.5f,  0.5f,  0.5f)  // 7
-};
-
-
-std::vector<glm::ivec3> indices = {
-    // Front face
-    glm::ivec3(4, 5, 6),
-    glm::ivec3(6, 7, 4),
-
-    // Back face
-    glm::ivec3(0, 1, 2),
-    glm::ivec3(2, 3, 0),
-
-    // Left face
-    glm::ivec3(0, 3, 7),
-    glm::ivec3(7, 4, 0),
-
-    // Right face
-    glm::ivec3(1, 5, 6),
-    glm::ivec3(6, 2, 1),
-
-    // Top face
-    glm::ivec3(3, 2, 6),
-    glm::ivec3(6, 7, 3),
-
-    // Bottom face
-    glm::ivec3(0, 1, 5),
-    glm::ivec3(5, 4, 0)
-};
-
-
-const std::vector<glm::vec3> colors = {
-    {1.f, 0.f, 0.f},
-    {0.f, 1.f, 0.f},
-    {0.f, 0.f, 1.f},
-    {0.f, 0.f, 1.f}
-};
 
 int main(void){
 
@@ -87,30 +40,31 @@ int main(void){
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     Model model;
     Model lightModel;
-    Mesh mesh;
-    Mesh lightPos;
-    lightPos.setVertices(vertices).setIndices(indices);
-    mesh.setVertices(vertices).setIndices(indices);
-    model.add(mesh);
-    model.setMaterial<SolidMaterial>();
-    lightModel.add(lightPos);
-    lightModel.setMaterial<LightMaterial>();
+    model.setMesh(Cube());
+    model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0);
+    lightModel.setMesh(Cube());
+    lightModel.setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
     
-
     Renderer renderer(*window.get(), camera);
     renderer.add(model);
     renderer.add(lightModel);
 
-    static constexpr auto R = 2.0;
+    renderer.setAmbientLight({
+        .intensity = 0.2,
+        .color = {1.f, 1.f, 1.f}
+    });
 
-    lightModel.setTranslation({0, 0.0, -5.0});
+    static constexpr auto R = 3.0;
+
+    lightModel.setTranslation({0, 0.0, -4.0});
+    lightModel.setScaleXYZ({0.3, 0.3, 0.3});
 
     while (!glfwWindowShouldClose(window.get()))
     {
         renderer.render();
         auto theta = glfwGetTime();
-        model.setRotationXYZ({theta, theta, 0});
-        model.setTranslation({R * sin(theta), R * cos(theta), -5.0});
+        model.setRotationXYZ({theta, 0, theta});
+        model.setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
         
         camera.poll(window.get());
     }

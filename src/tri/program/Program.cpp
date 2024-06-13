@@ -78,6 +78,7 @@ void Program::use() const{
 }
 
 const Program& Program::uniform(const std::string& name, std::function<void(GLint64)> fun) const {
+    use();
     auto loc = glGetUniformLocation(program, name.c_str());
     fun(loc);
     return *this;
@@ -94,3 +95,10 @@ const Program& Program::uniformVec3(const std::string& name, const glm::vec3& ve
         glUniform3fv(loc, 1, glm::value_ptr(vec));
     });
 }
+
+const Program& Program::uniformFloat(const std::string& name, float value) const {
+   return uniform(name, [name, value](GLint loc){
+        glUniform1f(loc, value);
+    });
+}
+

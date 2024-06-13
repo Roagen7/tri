@@ -16,24 +16,28 @@ public:
     void setScale(glm::vec3 scale);
     void setTranslation(glm::vec3 translation);
 
-    void add(const Mesh& mesh);
+    void setMesh(const Mesh& mesh);
+
+    const Program& getMaterial();
 
     template<typename T, typename... A>
     void setMaterial(A&&... args){
         this->material = std::make_unique<T>(args...);
     }
+    
+    void setScaleXYZ(glm::vec3 scale);
+
+
     void draw(const Camera& camera);
 
 private:
     // TODO: change to quaternion
     glm::vec3 rotation{};
     glm::vec3 translation{};
-    glm::vec3 scale{};
-    std::vector<Mesh> meshes;
+    glm::vec3 scale{1, 1, 1};
+    Mesh mesh;
     std::unique_ptr<Program> material{};
 
-    std::map<size_t, size_t> textures;
-
     // TODO: add default texture
-
+    size_t texture;
 };

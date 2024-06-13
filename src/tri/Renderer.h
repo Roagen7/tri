@@ -16,10 +16,18 @@ public:
     void add(Model& model);
     void add(PointLight ptLight);
 
+    void addLightSource(PointLight light);
+    void setAmbientLight(AmbientLight light);
+
 private:
+
+    void setupLights(const Program& material);
+
     GLFWwindow& window;
     Camera& camera;
     std::vector<Model*> models;
-    PointLight pointLights;
+
+    std::vector<PointLight> pointLights;
+    AmbientLight ambientLight;
 
 };
