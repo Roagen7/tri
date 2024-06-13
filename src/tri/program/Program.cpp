@@ -102,3 +102,10 @@ const Program& Program::uniformFloat(const std::string& name, float value) const
     });
 }
 
+const Program& Program::uniformInt(const std::string& name, int value) const {
+    return uniform(name, [name, value](GLint loc){
+        glUniform1i(loc, value);
+    });
+}
+
+

@@ -4,13 +4,16 @@
 
 
 #include "Mesh.h"
+#include <tri/program/materials/DefaultMaterial.h>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <map>
 
 class Model {
 public:
-    Model() = default;
+    Model() {
+        setMaterial<DefaultMaterial>();
+    };
 
     void setRotationXYZ(glm::vec3 rotation);
     void setScale(glm::vec3 scale);

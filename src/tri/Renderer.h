@@ -8,6 +8,8 @@
 #include "./model/Model.h"
 #include "./light/LightSource.h"
 
+static constexpr auto MAX_POINT_LIGHTS = 10;
+
 class Renderer {
 
 public:

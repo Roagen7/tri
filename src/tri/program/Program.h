@@ -20,7 +20,7 @@ public:
     const Program& uniformMat4(const std::string& name, const glm::mat4x4& mat) const;
     const Program& uniformVec3(const std::string& name, const glm::vec3& vec) const;
     const Program& uniformFloat(const std::string& name, float value) const;
-
+    const Program& uniformInt(const std::string& name, int value) const;
 
     ~Program(){
         glDeleteProgram(program);

@@ -1,26 +1,11 @@
 #version 330 core
 
+#define MAX_POINT_LIGHTS 10
 
-uniform float uDiffuse;
-uniform float uSpecular;
-uniform float uShininess;
-
-uniform vec3 viewDir;
-uniform vec3 ambientColor;
-uniform float ambientIntensity;
-
-uniform int numPointLights;
-
-in vec3 col;
-in vec3 normal;
-in vec4 worldPos;
-
-vec3 lightPos = vec3(0.0, 0.0, -4.0);
-vec3 lightColor = vec3(1.0, 1.0, 1.0);
-
-vec3 ambient(){
-    return vec3(1.0, 1.0, 1.0);
-}
+// ------ shader config params -------
+uniform int hasSpecularMap;
+uniform int hasDiffuseMap;
+// ------ shader config params end -------
 
 struct PointLight {
     vec3 position;
@@ -32,6 +17,28 @@ struct PointLight {
     float quadratic;
 };
 
+uniform int uNumPointLights;
+uniform PointLight uPointLights[MAX_POINT_LIGHTS];
+
+uniform float uDiffuse;
+uniform float uSpecular;
+uniform float uShininess;
+
+uniform vec3 viewDir;
+uniform vec3 ambientColor;
+uniform float ambientIntensity;
+
+
+in vec3 col;
+in vec3 normal;
+in vec4 worldPos;
+
+vec3 lightPos = vec3(0.0, 0.0, -4.0);
+vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+vec3 ambient(){
+    return vec3(1.0, 1.0, 1.0);
+}
 
 vec3 calcPointLight(PointLight light){
     //-------------------attenuation-------------------------------
@@ -59,12 +66,18 @@ vec3 calcPointLight(PointLight light){
 
 void main()
 {   
-    PointLight light = PointLight(vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, 1.0), 1, 0.0, 0.5);
+    // PointLight light = PointLight(vec3(0.0, 0.0, -4.0), vec3(1.0, 1.0, 1.0), 1, 0.0, 0.5);
 
 
     vec3 outColor = vec3(0.0, 0.0, 0.0);
-    outColor +=  calcPointLight(light);
     outColor += ambientColor * ambientIntensity;
+
+    for(int i = 0; i < uNumPointLights; i++){
+        if(i > uNumPointLights) {
+            continue;
+        }
+        outColor +=  calcPointLight(uPointLights[i]);
+    }
 
     outColor *= col;
 
