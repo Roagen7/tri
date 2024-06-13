@@ -41,7 +41,7 @@ int main(void){
     Model model;
     Model lightModel;
     model.setMesh(Cube());
-    model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0);
+    model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 1.0);
     lightModel.setMesh(Cube());
     lightModel.setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
     
@@ -50,7 +50,7 @@ int main(void){
     renderer.add(lightModel);
 
     renderer.setAmbientLight({
-        .intensity = 0.2,
+        .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
 

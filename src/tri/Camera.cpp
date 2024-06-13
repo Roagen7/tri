@@ -10,6 +10,10 @@ glm::mat4 Camera::view(float zFar) const{
     return glm::perspective(glm::radians(90.0f), w/h, 0.1f, zFar) * glm::lookAt(pos, pos + dir, UP);
 }
 
+glm::vec3 Camera::getDir(){
+    return dir;
+}
+
 void Camera::poll(GLFWwindow *window) {
     int iWidth, iHeight;
     glfwGetWindowSize(window, &iWidth, &iHeight);

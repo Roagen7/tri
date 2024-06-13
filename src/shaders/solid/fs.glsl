@@ -3,7 +3,9 @@
 
 uniform float uDiffuse;
 uniform float uSpecular;
+uniform float uShininess;
 
+uniform vec3 viewDir;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
@@ -32,32 +34,25 @@ struct PointLight {
 
 
 vec3 calcPointLight(PointLight light){
-    vec3 lightDir = normalize(light.position - worldPos.xyz);
-
-    // diffuse
-    float diff = max(dot(normal, lightDir), 0.0);
-    // // specular
-    // vec3 reflectDir = reflect(-lightDir, normal);
-    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-
-
-    // attenuation
+    //-------------------attenuation-------------------------------
     float distance    = length(light.position - worldPos.xyz);
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			     light.quadratic * (distance * distance));    
 
-    //vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
-    //vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
-    //vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
-    //ambient  *= attenuation;
-    //diffuse  *= attenuation;
-    //specular *= attenuation;
-    //return (ambient + diffuse + specular);
 
-    // remember to add material diffuse property
-    vec3 diffuse = light.color * diff * uDiffuse;
+    //-------------------PHONG-------------------------------
+    vec3 lightDir = normalize(light.position - worldPos.xyz);
+    // diffuse
+    float diff = max(dot(normalize(normal), lightDir), 0.0);
+    // // specular
+    vec3 reflectDir = normalize(reflect(lightDir, normalize(normal)));
+    float spec = pow(max(dot(normalize(viewDir), reflectDir), 0.0), uShininess);
+    //float spec = max(dot(viewDir, reflectDir), 0.0);
 
-    return attenuation * diffuse;
+    //-------------------maps-------------------------------    
+    // TODO: add specular and diffuse map support
+
+    return attenuation * light.color * (diff * uDiffuse + spec * uSpecular);
 }
 
 
@@ -73,6 +68,9 @@ void main()
 
     outColor *= col;
 
+    outColor.x = min(outColor.x, 1.0);
+    outColor.y = min(outColor.y, 1.0);
+    outColor.z = min(outColor.z, 1.0);
 
     gl_FragColor = vec4(outColor, 1.0);
 }

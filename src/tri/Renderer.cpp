@@ -19,6 +19,7 @@ void Renderer::render(){
 }
 
 void Renderer::setupLights(const Program& material){
+    material.uniformVec3("viewDir", camera.getDir());
     material.uniformVec3("ambientColor", ambientLight.color);
     material.uniformFloat("ambientIntensity", ambientLight.intensity);
 }
