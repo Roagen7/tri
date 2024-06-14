@@ -13,6 +13,10 @@ class Mesh {
 
 public:    
     Mesh() = default;
+    Mesh(const Mesh& other);
+    Mesh(Mesh&& other) noexcept;
+    Mesh& operator=(const Mesh& other);
+    Mesh& operator=(Mesh&& other) noexcept;
 
     Mesh& setVertices(std::vector<glm::vec3> vertices);
     Mesh& setIndices(std::vector<glm::ivec3> indices);

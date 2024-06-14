@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -22,7 +23,7 @@ public:
         skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
     };
     void render();
-    void add(Model& model);
+    void add(std::shared_ptr<Model> model);
     void add(PointLight ptLight);
 
     void addLightSource(PointLight light);
@@ -42,7 +43,7 @@ private:
     Camera& camera;
 
     // TODO: change everything to shared ptrs i.e. models, pointLights, etc.
-    std::vector<Model*> models;
+    std::vector<std::shared_ptr<Model>> models;
 
     Model skybox;
     glm::vec3 bgColor{};

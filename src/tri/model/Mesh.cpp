@@ -106,5 +106,75 @@ void Mesh::cleanup(){
 }
 
 Mesh::~Mesh(){
-    //cleanup(); TODO: uncomment this and add copy constructors
+    cleanup(); 
+}
+
+Mesh::Mesh(const Mesh& other) {
+    vertices = other.vertices;
+    indices = other.indices;
+    colors = other.colors;
+    normals = other.normals;
+    texture = other.texture;
+    setup();
+}
+
+Mesh::Mesh(Mesh&& other) noexcept
+    : vertices(std::move(other.vertices)),
+      indices(std::move(other.indices)),
+      colors(std::move(other.colors)),
+      normals(std::move(other.normals)),
+      texture(std::move(other.texture)),
+      VAO(other.VAO), VBOverts(other.VBOverts), VBOcolors(other.VBOcolors),
+      VBOnormals(other.VBOnormals), VBOtexture(other.VBOtexture), EBO(other.EBO) {
+    other.VAO = 0;
+    other.VBOverts = 0;
+    other.VBOcolors = 0;
+    other.VBOnormals = 0;
+    other.VBOtexture = 0;
+    other.EBO = 0;
+}
+
+Mesh& Mesh::operator=(const Mesh& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    vertices = other.vertices;
+    indices = other.indices;
+    colors = other.colors;
+    normals = other.normals;
+    texture = other.texture;
+    setup();
+    
+    return *this;
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+
+    cleanup();
+
+    vertices = std::move(other.vertices);
+    indices = std::move(other.indices);
+    colors = std::move(other.colors);
+    normals = std::move(other.normals);
+    texture = std::move(other.texture);
+
+    VAO = other.VAO;
+    VBOverts = other.VBOverts;
+    VBOcolors = other.VBOcolors;
+    VBOnormals = other.VBOnormals;
+    VBOtexture = other.VBOtexture;
+    EBO = other.EBO;
+
+    other.VAO = 0;
+    other.VBOverts = 0;
+    other.VBOcolors = 0;
+    other.VBOnormals = 0;
+    other.VBOtexture = 0;
+    other.EBO = 0;
+
+    return *this;
 }

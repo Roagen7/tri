@@ -44,8 +44,10 @@ int main(void){
     Window window("example", width, height);
             
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
-    Model model;
-    Model model2;
+    auto model = std::make_shared<Model>();
+    auto model2 = std::make_shared<Model>();
+    auto lightModel = std::make_shared<Model>();
+    auto lightModel2 = std::make_shared<Model>();
 
     Cubemap cubemap({
         .right = "examples/skybox/right.jpg",
@@ -56,18 +58,17 @@ int main(void){
         .back = "examples/skybox/back.jpg"
     });
 
-    model.setMesh(Cube());
-    model2.setMesh(Plane());
+    model->setMesh(Cube());
+    model2->setMesh(Plane());
     
-    model2.setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
-    Model lightModel;
-    Model lightModel2;
-    model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
+    model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
+    
+    model->setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
 
-    lightModel.setMesh(Cube());
-    lightModel.setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
-    lightModel2.setMesh(Cube());
-    lightModel2.setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
+    lightModel->setMesh(Cube());
+    lightModel->setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
+    lightModel2->setMesh(Cube());
+    lightModel2->setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
     
     Renderer renderer(*window.get(), camera);
         renderer.setSkybox(std::move(cubemap));
@@ -105,22 +106,22 @@ int main(void){
 
     static constexpr auto R = 3.0;
 
-    lightModel.setTranslation({0, 0.0, -4.0});
-    lightModel.setScaleXYZ({0.3, 0.3, 0.3});
+    lightModel->setTranslation({0, 0.0, -4.0});
+    lightModel->setScaleXYZ({0.3, 0.3, 0.3});
 
-    lightModel2.setTranslation({0, 7.0, -4.0});
-    lightModel2.setScaleXYZ({0.3, 0.3, 0.3});
+    lightModel2->setTranslation({0, 7.0, -4.0});
+    lightModel2->setScaleXYZ({0.3, 0.3, 0.3});
 
-    model2.setScaleXYZ({20, 20, 20});
-    model2.setTranslation({-5.0, 10, -7.0});
-    model2.setRotationXYZ({M_PI/2, 0, 0});
+    model2->setScaleXYZ({20, 20, 20});
+    model2->setTranslation({-5.0, 10, -7.0});
+    model2->setRotationXYZ({M_PI/2, 0, 0});
 
     while (!glfwWindowShouldClose(window.get()))
     {
         renderer.render();
         auto theta = glfwGetTime();
-        model.setRotationXYZ({theta, 0, theta});
-        model.setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
+        model->setRotationXYZ({theta, 0, theta});
+        model->setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
         
         camera.poll(window.get());
     }

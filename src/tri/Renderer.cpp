@@ -53,8 +53,8 @@ void Renderer::setSkybox(Cubemap&& cubemap){
     skybox.setMaterial<SkyboxMaterial>(std::move(cubemap));
 }
 
-void Renderer::add(Model& model){
-    models.push_back(&model);
+void Renderer::add(std::shared_ptr<Model> model){
+    models.push_back(model);
 }
 
 void Renderer::addLightSource(PointLight light){

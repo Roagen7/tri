@@ -33,44 +33,9 @@ void getProgramError(GLuint program){
 }
 
 
-Program::Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath) : 
-    vertexShader(glCreateShader(GL_VERTEX_SHADER)),
-    fragmentShader(glCreateShader(GL_FRAGMENT_SHADER)),
-    geometryShader(glCreateShader(GL_GEOMETRY_SHADER)),
-    program(glCreateProgram()){
-        
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    vsSource = readShader(vertexShaderPath);
-    fsSource = readShader(fragmentShaderPath);
-
-    auto vsSourceCStr = vsSource.c_str();
-    auto fsSourceCStr = fsSource.c_str();
-
-    glShaderSource(vertexShader, 1, &vsSourceCStr, NULL);
-    glShaderSource(fragmentShader, 1, &fsSourceCStr, NULL);
-    
-    glCompileShader(vertexShader);
-    glCompileShader(fragmentShader);
-
-    getShaderError("Vertex:\n", vertexShader);
-    getShaderError("Fragment:\n", fragmentShader);
-
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-
-    if(!geometryShaderPath.empty()){
-        auto gsSource = readShader(geometryShaderPath);
-        auto gsSourceCStr = gsSource.c_str();
-        
-        glShaderSource(geometryShader, 1, &gsSourceCStr, NULL);
-        glCompileShader(geometryShader);
-        getShaderError("Geometry:\n", geometryShader);
-        glAttachShader(program, geometryShader);
-    }
-
-    glLinkProgram(program);
-    getProgramError(program);
+Program::Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath) {
+    readShaders(vertexShaderPath, fragmentShaderPath, geometryShaderPath);
+    compileShaders();
 }
 
 void Program::use() const{
@@ -108,4 +73,97 @@ const Program& Program::uniformInt(const std::string& name, int value) const {
     });
 }
 
+void Program::readShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath){
+    vsSource = readShader(vertexShaderPath);
+    fsSource = readShader(fragmentShaderPath);
+    if(!geometryShaderPath.empty()){
+        auto gsSource = readShader(geometryShaderPath);
+    }
+}
 
+void Program::compileShaders(){
+    auto vsSourceCStr = vsSource.c_str();
+    auto fsSourceCStr = fsSource.c_str();
+
+    cleanup();
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    program = glCreateProgram();
+    
+    glShaderSource(vertexShader, 1, &vsSourceCStr, NULL);
+    glShaderSource(fragmentShader, 1, &fsSourceCStr, NULL);
+    
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+
+    getShaderError("Vertex:\n", vertexShader);
+    getShaderError("Fragment:\n", fragmentShader);
+
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+
+    if(!gsSource.empty()){
+        auto gsSourceCStr = gsSource.c_str();
+        
+        glShaderSource(geometryShader, 1, &gsSourceCStr, NULL);
+        glCompileShader(geometryShader);
+        getShaderError("Geometry:\n", geometryShader);
+        glAttachShader(program, geometryShader);
+    }
+
+    glLinkProgram(program);
+    getProgramError(program);
+}
+
+void Program::cleanup(){
+    glDeleteProgram(program);
+    glDeleteShader(vertexShader); 
+    glDeleteShader(fragmentShader);
+    glDeleteShader(geometryShader);
+}
+
+Program::Program(const Program& other)
+    : vsSource(other.vsSource), fsSource(other.fsSource) {
+    compileShaders();
+}
+
+Program::Program(Program&& other) noexcept
+    : program(other.program), vsSource(std::move(other.vsSource)), fsSource(std::move(other.fsSource)),
+      vertexShader(other.vertexShader), fragmentShader(other.fragmentShader), geometryShader(other.geometryShader) {
+    other.program = 0;
+    other.vertexShader = 0;
+    other.fragmentShader = 0;
+    other.geometryShader = 0;
+}
+
+Program& Program::operator=(const Program& other) {
+    if (this == &other) {
+        return *this;
+    }
+    vsSource = other.vsSource;
+    fsSource = other.fsSource;
+    compileShaders();
+
+    return *this;
+}
+
+Program& Program::operator=(Program&& other) noexcept {
+    if (this == &other) {
+        return *this;
+    }
+
+    program = other.program;
+    vsSource = std::move(other.vsSource);
+    fsSource = std::move(other.fsSource);
+    vertexShader = other.vertexShader;
+    fragmentShader = other.fragmentShader;
+    geometryShader = other.geometryShader;
+
+    other.program = 0;
+    other.vertexShader = 0;
+    other.fragmentShader = 0;
+    other.geometryShader = 0;
+
+    return *this;
+}
