@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform mat4 rotation;
 uniform mat4 transform;
 uniform mat4 projection;

@@ -47,10 +47,10 @@ const Program& Program::uniformInt(const std::string& name, int value) const {
 }
 
 void Program::readShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath){
-    vsSource = readShader(vertexShaderPath);
-    fsSource = readShader(fragmentShaderPath);
+    vsSource = ShaderLib::include(readShader(vertexShaderPath));
+    fsSource = ShaderLib::include(readShader(fragmentShaderPath));
     if(!geometryShaderPath.empty()){
-        auto gsSource = readShader(geometryShaderPath);
+        auto gsSource = ShaderLib::include(readShader(geometryShaderPath));
     }
 }
 
