@@ -6,7 +6,6 @@ uniform mat4 projection;
 in vec3 vPos;
 out vec3 cubemapPos;
 
-
 void main(){
     gl_Position = projection * transform * rotation * vec4(vPos, 1.0);
     cubemapPos = vPos;

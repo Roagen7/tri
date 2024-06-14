@@ -3,35 +3,8 @@
 #include <util/files.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-
-static constexpr auto LOG_MAXSIZE = 1024;
-
-void getShaderError(const std::string& prefix, GLuint shader){
-    GLint hasCompiled;
-    char infoLog[LOG_MAXSIZE];
-    glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-    glGetShaderiv(shader,GL_COMPILE_STATUS, &hasCompiled);
-    if(hasCompiled){
-        return;
-    }
-    std::cout << prefix << infoLog << std::endl;
-    
-    exit(EXIT_FAILURE);
-
-}
-
-void getProgramError(GLuint program){
-    GLint hasLinked;
-    char infoLog[LOG_MAXSIZE];
-    glGetProgramInfoLog(program, 1024, nullptr, infoLog);
-    glGetProgramiv(program, GL_LINK_STATUS, &hasLinked);
-    if(hasLinked){
-        return;
-    }
-    std::cout << "Program:" << infoLog << std::endl;
-    exit(EXIT_FAILURE);
-}
-
+#include <tri/program/shaderError.h>
+#include <tri/program/ShaderLib.h>
 
 Program::Program(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath) {
     readShaders(vertexShaderPath, fragmentShaderPath, geometryShaderPath);
@@ -111,6 +84,8 @@ void Program::compileShaders(){
         getShaderError("Geometry:\n", geometryShader);
         glAttachShader(program, geometryShader);
     }
+
+    ShaderLib::attach(program);
 
     glLinkProgram(program);
     getProgramError(program);

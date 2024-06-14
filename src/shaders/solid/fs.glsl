@@ -34,6 +34,7 @@ uniform vec3 viewDir;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
+vec3 testFs(vec2 pt);
 
 in vec3 col;
 in vec3 normal;
@@ -96,4 +97,6 @@ void main()
     outColor.y = min(outColor.y, 1.0);
     outColor.z = min(outColor.z, 1.0);
     gl_FragColor = vec4(outColor, 1.0);
+
+    testFs(vec2(0.0, 0.0));
 }
