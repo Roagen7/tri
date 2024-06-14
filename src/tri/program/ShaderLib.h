@@ -9,7 +9,8 @@ static constexpr auto LIB_PATH_DECLARATIONS = "lib/declarations.glsl";
 
 static constexpr auto FILES_FS = {
     "test.glsl",
-    "pointLight.glsl"
+    "pointLight.glsl",
+    "dirLight.glsl"
 };
 
 static constexpr auto FILES_VS = {

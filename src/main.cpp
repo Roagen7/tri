@@ -26,13 +26,16 @@
 
 /*
 small TODO list:
-> add cubemaps (skybox)
-> add different light type (directional)
+> add cel shader material
 > add diffuse and specular map support
 > add loading mesh from file
+> add CubemapMaterial
 > add debug material
 > add default material
 > add sprites
+> add shadows
+> 
+> add bloom
 > add entity tree
 */
 
@@ -71,15 +74,15 @@ int main(void){
     lightModel2->setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
     
     Renderer renderer(*window.get(), camera);
-        renderer.setSkybox(std::move(cubemap));
-
-    // renderer.setSkybox({0.2, 0.2, 0.2});
+    renderer.setSkybox(std::move(cubemap));
+    //renderer.setSkybox({0.2, 0.2, 0.2});
+    
     renderer.add(model);
     renderer.add(lightModel);
     renderer.add(lightModel2);
     renderer.add(model2);
 
-    renderer.addLightSource({
+    renderer.addLightSource(light::make_point({
         .pos = {0, 0, -4.0},
         .color = {1, 1, 1},
         .attentuation = {
@@ -87,9 +90,9 @@ int main(void){
             .linear = 0.0,
             .quadratic = 0.5
         }
-    });
+    }));
 
-    renderer.addLightSource({
+    renderer.addLightSource(light::make_point({
         .pos = {0, 7.0, -4.0},
         .color = {1, 0, 0},
         .attentuation = {
@@ -97,12 +100,14 @@ int main(void){
             .linear = 0.0,
             .quadratic = 0.5
         }
-    });
+    }));
 
-    renderer.setAmbientLight({
+    auto amb = light::make_ambient({
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
+
+    renderer.setAmbientLight(amb);
 
     static constexpr auto R = 3.0;
 
@@ -120,6 +125,7 @@ int main(void){
     {
         renderer.render();
         auto theta = glfwGetTime();
+        //amb->intensity = (1 + sin(theta))/2 * 0.4;
         model->setRotationXYZ({theta, 0, theta});
         model->setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
         

@@ -1,4 +1,5 @@
 #define MAX_POINT_LIGHTS 10
+#define MAX_DIR_LIGHTS 3
 
 
 // ------ textures -----
@@ -14,6 +15,9 @@ uniform int hasDiffuseMap;
 
 uniform int uNumPointLights;
 uniform PointLight uPointLights[MAX_POINT_LIGHTS];
+uniform int uNumDirLights;
+uniform DirectionalLight uDirectionalLights[MAX_DIR_LIGHTS];
+
 
 uniform float uDiffuse;
 uniform float uSpecular;
@@ -33,12 +37,18 @@ void main()
     vec3 outColor = vec3(0.0, 0.0, 0.0);
     outColor += ambientColor * ambientIntensity;
 
-    for(int i = 0; i < uNumPointLights; i++){
-        if(i > uNumPointLights) {
-            continue;
-        }
+    //-------------------maps-------------------------------    
+    // TODO: add specular and diffuse map support
+    // i.e.
+    // uSpecular = texture(specularMap, texCoord);
+    // uDiffuse = texture(diffuseMap, texCoord);
 
+    for(int i = 0; i < uNumPointLights; i++){
         outColor +=  calcPointLight(uPointLights[i], normal, viewDir, worldPos, uShininess, uSpecular, uDiffuse);
+    }
+
+    for(int i = 0; i < uNumDirLights; i++){
+        outColor +=  calcDirLight(uDirectionalLights[i], normal, viewDir, uShininess, uSpecular, uDiffuse);
     }
 
     if (hasTexture == 1){

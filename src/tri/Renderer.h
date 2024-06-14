@@ -12,6 +12,7 @@
 #include "./texture/Cubemap.h"
 
 static constexpr auto MAX_POINT_LIGHTS = 10;
+static constexpr auto MAX_DIR_LIGHTS = 3;
 static constexpr auto SKYBOX_SCALE = 10000;
 
 
@@ -24,10 +25,11 @@ public:
     };
     void render();
     void add(std::shared_ptr<Model> model);
-    void add(PointLight ptLight);
 
-    void addLightSource(PointLight light);
-    void setAmbientLight(AmbientLight light);
+    void addLightSource(std::shared_ptr<PointLight> light);
+    void addLightSource(std::shared_ptr<DirectionalLight> light);
+    void setAmbientLight(std::shared_ptr<AmbientLight> light);
+    
 
     // for now only solid color
     void setSkybox(glm::vec3 color);
@@ -48,7 +50,9 @@ private:
     Model skybox;
     glm::vec3 bgColor{};
 
-    std::vector<PointLight> pointLights;
-    AmbientLight ambientLight;
+    std::vector<std::shared_ptr<PointLight>> pointLights;
+    std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
+    std::shared_ptr<AmbientLight> ambientLight;
+    
 
 };

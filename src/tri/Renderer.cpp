@@ -29,19 +29,29 @@ void Renderer::render(){
 
 void Renderer::setupLights(const Program& material){
     material.uniformVec3("viewDir", camera.getDir());
-    material.uniformVec3("ambientColor", ambientLight.color);
-    material.uniformFloat("ambientIntensity", ambientLight.intensity);
+    material.uniformVec3("ambientColor", ambientLight->color);
+    material.uniformFloat("ambientIntensity", ambientLight->intensity);
 
     material.uniformInt("uNumPointLights", pointLights.size());
     for(auto i = 0u; i < pointLights.size(); i++){
         const auto& light = pointLights[i];
         auto prefix = fmt::format("uPointLights[{}]", i);
 
-        material.uniformVec3(fmt::format("{}.position", prefix), light.pos);
-        material.uniformVec3(fmt::format("{}.color", prefix), light.color);
-        material.uniformFloat(fmt::format("{}.constant", prefix), light.attentuation.constant);
-        material.uniformFloat(fmt::format("{}.linear", prefix), light.attentuation.linear);
-        material.uniformFloat(fmt::format("{}.quadratic", prefix), light.attentuation.quadratic);
+        material.uniformVec3(fmt::format("{}.position", prefix), light->pos);
+        material.uniformVec3(fmt::format("{}.color", prefix), light->color);
+        material.uniformFloat(fmt::format("{}.constant", prefix), light->attentuation.constant);
+        material.uniformFloat(fmt::format("{}.linear", prefix), light->attentuation.linear);
+        material.uniformFloat(fmt::format("{}.quadratic", prefix), light->attentuation.quadratic);
+    }
+
+    material.uniformInt("uNumDirLights", directionalLights.size());
+    for(auto i = 0u; i < directionalLights.size(); i++){
+        const auto& light = directionalLights[i];
+        auto prefix = fmt::format("uDirectionalLights[{}]", i);
+
+        material.uniformVec3(fmt::format("{}.color", prefix), light->color);
+        material.uniformVec3(fmt::format("{}.direction", prefix), light->direction);
+        material.uniformFloat(fmt::format("{}.intensity", prefix), light->intensity);
     }
 }
 
@@ -57,11 +67,17 @@ void Renderer::add(std::shared_ptr<Model> model){
     models.push_back(model);
 }
 
-void Renderer::addLightSource(PointLight light){
-    if(pointLights.size() == MAX_POINT_LIGHTS) return;
+void Renderer::addLightSource(std::shared_ptr<PointLight> light){
+    if(pointLights.size() == MAX_DIR_LIGHTS) return;
     pointLights.push_back(light);
 }
 
-void Renderer::setAmbientLight(AmbientLight light){
+void Renderer::addLightSource(std::shared_ptr<DirectionalLight> light){
+    if(directionalLights.size() == MAX_DIR_LIGHTS) return;
+    directionalLights.push_back(light);
+}
+
+
+void Renderer::setAmbientLight(std::shared_ptr<AmbientLight> light){
     ambientLight = light;
 }

@@ -37,7 +37,7 @@ ShaderLib::ShaderLib(){
 
 ShaderLib::~ShaderLib(){
 
-    // segmentation fault for some reason
+// segmentation fault for some reason TODO: investigate
 //     for(auto shader : vertexShaders){
 //         glDeleteShader(shader);
 //     }
