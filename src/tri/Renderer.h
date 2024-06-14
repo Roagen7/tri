@@ -7,13 +7,20 @@
 #include "Camera.h"
 #include "./model/Model.h"
 #include "./light/LightSource.h"
+#include "./model/meshes/VertexCube.h"
+#include "./texture/Cubemap.h"
 
 static constexpr auto MAX_POINT_LIGHTS = 10;
+static constexpr auto SKYBOX_SCALE = 10000;
+
 
 class Renderer {
 
 public:
-    Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {};
+    Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {
+        skybox.setMesh(VertexCube());
+        skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
+    };
     void render();
     void add(Model& model);
     void add(PointLight ptLight);
@@ -23,6 +30,7 @@ public:
 
     // for now only solid color
     void setSkybox(glm::vec3 color);
+    void setSkybox(Cubemap&& cubemap);
 
     // TODO
     void setSkybox(/*cubemap*/);
@@ -32,7 +40,11 @@ private:
 
     GLFWwindow& window;
     Camera& camera;
+
+    // TODO: change everything to shared ptrs i.e. models, pointLights, etc.
     std::vector<Model*> models;
+
+    Model skybox;
     glm::vec3 bgColor{};
 
     std::vector<PointLight> pointLights;

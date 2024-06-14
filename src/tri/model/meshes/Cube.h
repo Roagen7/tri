@@ -1,9 +1,8 @@
 #include <tri/model/Mesh.h>
 
-class Cube : public PredefinedMesh {
-public:
-    Cube(){
-        vertices = std::vector<glm::vec3>({
+inline Mesh Cube(){
+    Mesh mesh;
+    mesh.setVertices({
             {-1.f, -1.f, -1.f}, // 0
             {-1.f, -1.f, 1.f}, // 1
             {-1.f, 1.f, -1.f}, // 2
@@ -12,10 +11,7 @@ public:
             {1.f, -1.f, 1.f}, // 5
             {1.f, 1.f, -1.f}, // 6
             {1.f, 1.f, 1.f}  // 7
-        });
-
-        indices = std::vector<glm::ivec3>({
-            // front
+        }).setIndices({     // front
             {0, 2, 4},
             {2, 4, 6},
             // back
@@ -33,20 +29,16 @@ public:
             // bottom
             {0, 1, 4},
             {1, 4, 5}
-        });
-
-        normals = std::vector<glm::vec3>({
-            {-1, -1, -1}, // 0
+        }).setNormals({{-1, -1, -1}, // 0
             {-1, -1, 1}, // 1
             {-1, 1, -1}, // 2
             {-1, 1, 1}, // 3
             {1, -1, -1}, // 4
             {1, -1, 1}, // 5
             {1, 1, -1}, // 6
-            {1, 1, 1}, // 7
-        });
+            {1, 1, 1}});
 
-        setup();
-    }
+    return mesh;
+}
 
-};
+

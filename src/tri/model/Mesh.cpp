@@ -106,5 +106,5 @@ void Mesh::cleanup(){
 }
 
 Mesh::~Mesh(){
-
+    //cleanup(); TODO: uncomment this and add copy constructors
 }

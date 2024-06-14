@@ -38,13 +38,5 @@ private:
     void cleanup();
   
 
-    GLuint VAO, VBOverts, VBOcolors, VBOnormals, VBOtexture, EBO;
-};
-
-class PredefinedMesh : public Mesh{
-protected:
-    void isNotPredefinedMesh(){
-        std::cerr << "ERROR: trying to set attribute of a predefined mesh" << std::endl;
-        exit(1);
-    }
+    GLuint VAO{}, VBOverts{}, VBOcolors{}, VBOnormals{}, VBOtexture{}, EBO{};
 };

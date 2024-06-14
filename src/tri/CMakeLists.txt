@@ -7,5 +7,6 @@ ${SOURCE_DIR}/tri/Camera.cpp
 ${SOURCE_DIR}/tri/model/Model.cpp 
 ${SOURCE_DIR}/tri/Renderer.cpp
 ${SOURCE_DIR}/tri/texture/Texture.cpp
+${SOURCE_DIR}/tri/texture/Cubemap.cpp
 )
 target_link_libraries(tri PUBLIC glad util fmt glm glfw stb)

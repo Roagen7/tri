@@ -40,7 +40,7 @@ Texture::~Texture(){
     glDeleteTextures(1, &texture);
 }
 
-Texture::Texture(const Texture& other): width(other.width), height(other.height) {
+Texture::Texture(const Texture& other): width(other.width), height(other.height), path(other.path) {
     loadTexture(other.path);
 }
 
@@ -70,6 +70,7 @@ Texture& Texture::operator=(Texture&& other) noexcept {
     width = other.width;
     height = other.height;
     numChannels = other.numChannels;
+    path = other.path;
     other.texture = 0;
     other.width = 0;
     other.height = 0;

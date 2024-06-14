@@ -1,15 +1,18 @@
 #include "Renderer.h"
 
 #include <fmt/format.h>
+
+#include <tri/program/materials/SkyboxMaterial.h>
   
 void Renderer::render(){
     int width, height;
     glfwGetFramebufferSize(&window, &width, &height);
     glViewport(0, 0, width, height);
 
-    glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
+    glClearColor(0, 0, 0, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glDepthFunc(GL_LESS); 
     for(auto model : this->models){
         const auto& material = model->getMaterial();
         
@@ -17,6 +20,8 @@ void Renderer::render(){
         setupLights(material);
         model->draw(camera);
     }
+    glDepthFunc(GL_LEQUAL);
+    skybox.draw(camera);
 
     glfwSwapBuffers(&window);
     glfwPollEvents();
@@ -41,9 +46,12 @@ void Renderer::setupLights(const Program& material){
 }
 
 void Renderer::setSkybox(glm::vec3 color){
-    bgColor = color;
+    skybox.setMaterial<SkyboxMaterial>(color);
 }
 
+void Renderer::setSkybox(Cubemap&& cubemap){
+    skybox.setMaterial<SkyboxMaterial>(std::move(cubemap));
+}
 
 void Renderer::add(Model& model){
     models.push_back(&model);

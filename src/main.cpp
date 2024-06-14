@@ -10,8 +10,10 @@
 #include <tri/program/Program.h>
 #include <tri/program/materials/SolidMaterial.h>
 #include <tri/program/materials/LightMaterial.h>
+#include <tri/program/materials/SkyboxMaterial.h>
 #include <tri/model/meshes/Cube.h>
 #include <tri/model/meshes/Plane.h>
+#include <tri/model/meshes/VertexCube.h>
 #include <util/files.h>
 #include <iostream>
 #include <tri/model/Mesh.h>
@@ -20,7 +22,7 @@
 #include <util/window_init.h>
 #include <tri/texture/Texture.h>
 #include <tri/program/materials/TextureMaterial.h>
-
+#include <tri/texture/Cubemap.h>
 
 /*
 small TODO list:
@@ -31,6 +33,7 @@ small TODO list:
 > add debug material
 > add default material
 > add sprites
+> add entity tree
 */
 
 int main(void){
@@ -43,13 +46,22 @@ int main(void){
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     Model model;
     Model model2;
+
+    Cubemap cubemap({
+        .right = "examples/skybox/right.jpg",
+        .left = "examples/skybox/left.jpg",
+        .top = "examples/skybox/top.jpg",
+        .bottom = "examples/skybox/bottom.jpg",
+        .front = "examples/skybox/front.jpg",
+        .back = "examples/skybox/back.jpg"
+    });
+
+    model.setMesh(Cube());
     model2.setMesh(Plane());
-    //model2.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 128.0);
     
     model2.setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
     Model lightModel;
     Model lightModel2;
-    model.setMesh(Cube());
     model.setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
 
     lightModel.setMesh(Cube());
@@ -58,7 +70,9 @@ int main(void){
     lightModel2.setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
     
     Renderer renderer(*window.get(), camera);
-    renderer.setSkybox({0.2, 0.2, 0.2});
+        renderer.setSkybox(std::move(cubemap));
+
+    // renderer.setSkybox({0.2, 0.2, 0.2});
     renderer.add(model);
     renderer.add(lightModel);
     renderer.add(lightModel2);
