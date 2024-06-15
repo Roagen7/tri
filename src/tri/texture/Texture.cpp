@@ -14,10 +14,10 @@ void Texture::loadTexture(const std::string& path){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &numChannels, 0);
     assert(data);
-    assert(numChannels >= 3);
+    assert(numChannels >= 1);
 
     // make parameters dependent on numChannels
-    unsigned int channelMap[5] = {0, 0, 0, GL_RGB, GL_RGBA};
+    unsigned int channelMap[5] = {0, GL_RED, 0, GL_RGB, GL_RGBA};
     glTexImage2D(GL_TEXTURE_2D, 0, channelMap[numChannels], width, height, 0, channelMap[numChannels], GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);

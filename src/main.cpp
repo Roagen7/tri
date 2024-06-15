@@ -27,7 +27,6 @@
 
 /*
 small TODO list:
-> add diffuse and specular map support
 > add cel shader material
 > add CubemapMaterial
 > add sprites
@@ -47,6 +46,7 @@ int main(void){
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     auto model = std::make_shared<Model>();
     auto model2 = std::make_shared<Model>();
+    auto model3 = std::make_shared<Model>();
     auto lightModel = std::make_shared<Model>();
     auto lightModel2 = std::make_shared<Model>();
 
@@ -61,10 +61,16 @@ int main(void){
 
     model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
     model2->setMesh(Plane());
-    
-    model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
-    
+    model3->setMesh(VertexCube());
+
     model->setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
+    model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
+//    model3->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/container2.png")), 1.0, 1.0, 1024.0);
+    model3->setMaterial<TextureMaterial>(
+        std::move(Texture("examples/textures/container2.png")), 1.0, 
+        std::move(Texture("examples/textures/container2_specular.png")), 
+        32.0);
+
 
     lightModel->setMesh(Cube());
     lightModel->setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
@@ -79,6 +85,7 @@ int main(void){
     renderer.add(lightModel);
     renderer.add(lightModel2);
     renderer.add(model2);
+    renderer.add(model3);
 
     renderer.addLightSource(light::make_point({
         .pos = {0, 0, -4.0},
@@ -86,7 +93,7 @@ int main(void){
         .attentuation = {
             .constant = 1.0,
             .linear = 0.0,
-            .quadratic = 0.5
+            .quadratic = 0.0
         }
     }));
 
@@ -125,12 +132,15 @@ int main(void){
     model2->setTranslation({-5.0, 10, -7.0});
     model2->setRotationXYZ({M_PI/2, 0, 0});
 
+    model3->setScaleXYZ({2, 2, 2});
+
     while (!glfwWindowShouldClose(window.get()))
     {
         renderer.render();
         auto theta = glfwGetTime();
         //amb->intensity = (1 + sin(theta))/2 * 0.4;
         model->setRotationXYZ({theta, 0, theta});
+        //model3->setRotationXYZ({0, theta, 0});
         model->setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
         
         camera.poll(window.get());

@@ -6,11 +6,14 @@
 uniform int hasTexture;
 uniform sampler2D texture0;
 
+uniform int hasSpecularMap;
+uniform sampler2D texture1;
+
 // ------ textures end ----
 
 // ------ shader config params -------
-uniform int hasSpecularMap;
-uniform int hasDiffuseMap;
+
+
 // ------ shader config params end -------
 
 uniform int uNumPointLights;
@@ -37,14 +40,13 @@ void main()
     vec3 outColor = vec3(0.0, 0.0, 0.0);
     outColor += ambientColor * ambientIntensity;
 
-    //-------------------maps-------------------------------    
-    // TODO: add specular and diffuse map support
-    // i.e.
-    // uSpecular = texture(specularMap, texCoord);
-    // uDiffuse = texture(diffuseMap, texCoord);
+    float specular_val = uSpecular;
+    if(hasSpecularMap == 1){
+        specular_val = texture(texture1, texPos).x;
+    }
 
     for(int i = 0; i < uNumPointLights; i++){
-        outColor +=  calcPointLight(uPointLights[i], normal, viewDir, worldPos, uShininess, uSpecular, uDiffuse);
+        outColor +=  calcPointLight(uPointLights[i], normal, viewDir, worldPos, uShininess, specular_val, uDiffuse);
     }
 
     for(int i = 0; i < uNumDirLights; i++){
