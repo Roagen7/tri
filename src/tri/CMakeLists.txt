@@ -11,4 +11,4 @@ ${SOURCE_DIR}/tri/texture/Texture.cpp
 ${SOURCE_DIR}/tri/texture/Cubemap.cpp
 ${SOURCE_DIR}/tri/program/shaderError.cpp
 )
-target_link_libraries(tri PUBLIC glad util fmt glm glfw stb)
+target_link_libraries(tri PUBLIC glad util fmt glm glfw stb Boost::filesystem)

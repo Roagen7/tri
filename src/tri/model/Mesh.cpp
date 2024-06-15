@@ -1,6 +1,13 @@
 #include "Mesh.h"
 #include <glad/glad.h>
 
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+
+#include <boost/algorithm/string.hpp>
+
 
 Mesh& Mesh::setVertices(std::vector<glm::vec3> vertices){
     isNotPredefinedMesh();
@@ -177,4 +184,144 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     other.EBO = 0;
 
     return *this;
+}
+
+/*
+    simple OBJ parser
+    OBJ format reference https://en.wikipedia.org/wiki/Wavefront_.obj_file
+    NOTE: following case will not work - some vertices have texture/normal coords and some not
+*/
+Mesh Mesh::fromFile(const std::string& filename) {
+    std::ifstream input(filename);
+    if(!input.is_open()){
+        std::cerr << "[ERROR] COULDN'T OPEN FILE " << filename << std::endl;
+        assert(0);
+    }
+    
+    std::vector<glm::vec3> parsedVertices;
+    std::vector<glm::vec3> parsedNormals;
+    std::vector<glm::vec2> parsedTextures;
+
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> textures;
+
+    while(!input.eof()){
+        std::string line;
+        std::getline(input, line);
+        std::stringstream lineStream{line};
+        std::string skipfirst;
+        if(line.starts_with("vt")){
+            glm::vec3 vt;
+            lineStream >> skipfirst >> vt.x >> vt.y >> vt.z;
+            parsedTextures.push_back(vt);
+        } else if(line.starts_with("vn")){
+            glm::vec3  vn; 
+            lineStream >> skipfirst >> vn.x >> vn.y >> vn.z;
+            parsedNormals.push_back(vn);
+        } else if(line.starts_with("v")){
+            glm::vec3  v;
+            lineStream >> skipfirst >> v.x >> v.y >> v.z;
+            parsedVertices.push_back(v); 
+        } else if(line.starts_with("f")){
+            lineStream >> skipfirst;
+            const auto firstSlashPos = line.find('/');
+            const auto secondSlashPos = line.find('/', firstSlashPos + 1);
+            const auto nextSpacePos = line.find(' ', firstSlashPos);
+
+            if (firstSlashPos == line.npos){
+                // CASE: f v v v    
+                glm::ivec3 indices;
+                lineStream >> indices.x >> indices.y >> indices.z;
+                indices -= glm::ivec3{1, 1, 1};
+
+                auto v1 = parsedVertices[indices.x]; 
+                auto v2 = parsedVertices[indices.y];
+                auto v3 = parsedVertices[indices.z];
+                auto normal = glm::cross(v2 - v1, v3 - v1);
+                vertices.push_back(v1); vertices.push_back(v2); vertices.push_back(v3);
+                normals.push_back(normal); normals.push_back(normal); normals.push_back(normal);
+            } else if (firstSlashPos + 1 == secondSlashPos){
+                // f v1//vn1 v2//vn2 v3//vn3
+                glm::ivec3 indices;
+                glm::ivec3 indicesNormal;
+                boost::replace_all(line, "//", " ");
+                std::stringstream modifiedLineStream{line};
+                modifiedLineStream >> skipfirst >> indices.x >> indicesNormal.x >> indices.y >> indicesNormal.y >> indices.z >> indicesNormal.z;
+                indices -= glm::ivec3{1, 1, 1};
+                indicesNormal -= glm::ivec3{1, 1, 1};
+
+                auto v1 = parsedVertices[indices.x]; 
+                auto v2 = parsedVertices[indices.y];
+                auto v3 = parsedVertices[indices.z];
+                auto vn1 = parsedNormals[indicesNormal.x]; 
+                auto vn2 = parsedNormals[indicesNormal.y];
+                auto vn3 = parsedNormals[indicesNormal.z];
+                vertices.push_back(v1); vertices.push_back(v2); vertices.push_back(v3);
+                normals.push_back(vn1); normals.push_back(vn2); normals.push_back(vn3);
+            } else if(secondSlashPos > nextSpacePos ) {
+                // f v1/vt1 v2/vt2 v3/vt3
+                glm::ivec3 indices;
+                glm::ivec3 indicesTextures;
+                boost::replace_all(line, "/", " ");
+                std::stringstream modifiedLineStream{line};
+                modifiedLineStream >> skipfirst >> indices.x >> indicesTextures.x >> indices.y >> indicesTextures.y >> indices.z >> indicesTextures.z;
+                indices -= glm::ivec3{1, 1, 1};
+                indicesTextures -= glm::ivec3{1, 1, 1};
+                
+                auto v1 = parsedVertices[indices.x]; 
+                auto v2 = parsedVertices[indices.y];
+                auto v3 = parsedVertices[indices.z];
+                auto vt1 = parsedTextures[indicesTextures.x]; 
+                auto vt2 = parsedTextures[indicesTextures.y];
+                auto vt3 = parsedTextures[indicesTextures.z];
+                auto normal = glm::cross(v2 - v1, v3 - v1);
+          
+                vertices.push_back(v1); vertices.push_back(v2); vertices.push_back(v3);
+                normals.push_back(normal); normals.push_back(normal); normals.push_back(normal);
+                textures.push_back(vt1); textures.push_back(vt2); textures.push_back(vt3); 
+
+            } else if (nextSpacePos != line.npos && secondSlashPos != line.npos){
+                // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
+                glm::ivec3 indices;
+                glm::ivec3 indicesNormal;
+                glm::ivec3 indicesTextures;
+                boost::replace_all(line, "/", " ");
+                std::stringstream modifiedLineStream{line};
+                modifiedLineStream >> skipfirst >> indices.x >> indicesNormal.x >> indicesTextures.x 
+                                >> indices.y >> indicesNormal.y >> indicesTextures.y 
+                                >> indices.z >> indicesNormal.z >> indicesTextures.z;
+                indices -= glm::ivec3{1, 1, 1};
+                indicesTextures -= glm::ivec3{1, 1, 1};
+                indicesNormal -= glm::ivec3{1, 1, 1};
+                
+                auto v1 = parsedVertices[indices.x]; 
+                auto v2 = parsedVertices[indices.y];
+                auto v3 = parsedVertices[indices.z];
+                auto vt1 = parsedTextures[indicesTextures.x]; 
+                auto vt2 = parsedTextures[indicesTextures.y];
+                auto vt3 = parsedTextures[indicesTextures.z];
+                auto vn1 = parsedNormals[indicesNormal.x]; 
+                auto vn2 = parsedNormals[indicesNormal.y];
+                auto vn3 = parsedNormals[indicesNormal.z];
+                vertices.push_back(v1); vertices.push_back(v2); vertices.push_back(v3);
+                normals.push_back(vn1); normals.push_back(vn2); normals.push_back(vn3);
+                textures.push_back(vt1); textures.push_back(vt2); textures.push_back(vt3); 
+            } else {
+                std::cerr << "error in obj file format at " << line << std::endl;
+                assert(0);
+            }
+        } else if(!line.starts_with("#")) {
+            // not supported, but log it
+            std::cerr << "Warning, " << filename << " file has unsupported obj features: " << line << std::endl;
+        }
+    }
+    
+
+
+    Mesh mesh;
+    mesh.setVertices(vertices).setNormals(normals).setTextureUnits(textures);
+
+
+    return mesh;
 }

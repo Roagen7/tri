@@ -23,7 +23,7 @@ public:
     Mesh& setColors(std::vector<glm::vec3> colors);
     Mesh& setNormals(std::vector<glm::vec3> normals);
     Mesh& setTextureUnits(std::vector<glm::vec2> normals);
-
+    static Mesh fromFile(const std::string& path);
 
     void draw() const;
 

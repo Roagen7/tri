@@ -3,6 +3,7 @@ project(tri_app VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(FETCHCONTENT_QUIET FALSE) 
 
 include(FetchContent)
 
@@ -83,6 +84,22 @@ if(NOT stb_POPULATED)
     add_library(stb INTERFACE)
     target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 endif()
+
+set(BOOST_INCLUDE_LIBRARIES thread filesystem system program_options)
+set(BOOST_ENABLE_CMAKE ON)
+
+message("Downloading Boost")
+
+FetchContent_Declare(
+    Boost
+    URL https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.7z # downloading a zip release speeds up the download
+    USES_TERMINAL_DOWNLOAD TRUE 
+    GIT_PROGRESS TRUE   
+    DOWNLOAD_NO_EXTRACT FALSE
+)
+
+FetchContent_MakeAvailable(Boost)
+
 
 set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(src)

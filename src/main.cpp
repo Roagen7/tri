@@ -11,6 +11,7 @@
 #include <tri/program/materials/SolidMaterial.h>
 #include <tri/program/materials/LightMaterial.h>
 #include <tri/program/materials/SkyboxMaterial.h>
+#include <tri/program/materials/DebugMaterial.h>
 #include <tri/model/meshes/Cube.h>
 #include <tri/model/meshes/Plane.h>
 #include <tri/model/meshes/VertexCube.h>
@@ -26,12 +27,9 @@
 
 /*
 small TODO list:
-> add cel shader material
 > add diffuse and specular map support
-> add loading mesh from file
+> add cel shader material
 > add CubemapMaterial
-> add debug material
-> add default material
 > add sprites
 > add shadows
 > 
@@ -61,7 +59,7 @@ int main(void){
         .back = "examples/skybox/back.jpg"
     });
 
-    model->setMesh(Cube());
+    model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
     model2->setMesh(Plane());
     
     model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
@@ -106,6 +104,12 @@ int main(void){
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
+
+    renderer.addLightSource(light::make_dir({
+        .direction = {0.0, -1.0, -1.0},
+        .color = {1.f, 1.f, 1.f},
+        .intensity = 0.1
+    }));
 
     renderer.setAmbientLight(amb);
 
