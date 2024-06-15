@@ -20,6 +20,10 @@ class Renderer {
 
 public:
     Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_CLAMP);
+        // glEnable(GL_BLEND);
+        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         skybox.setMesh(VertexCube());
         skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
     };

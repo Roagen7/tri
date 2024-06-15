@@ -62,7 +62,6 @@ void main()
     outColor.x = min(outColor.x, 1.0);
     outColor.y = min(outColor.y, 1.0);
     outColor.z = min(outColor.z, 1.0);
+    //texture(texture0, texPos).t
     gl_FragColor = vec4(outColor, 1.0);
-
-    testFs(vec2(0.0, 0.0));
 }

@@ -24,7 +24,9 @@ public:
     Mesh& setNormals(std::vector<glm::vec3> normals);
     Mesh& setTextureUnits(std::vector<glm::vec2> normals);
     static Mesh fromFile(const std::string& path);
+    static Mesh fromStream(std::istream& stream);
 
+    bool hasVertices();
     void draw() const;
 
     ~Mesh();

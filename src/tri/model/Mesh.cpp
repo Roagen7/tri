@@ -186,18 +186,16 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     return *this;
 }
 
+bool Mesh::hasVertices(){
+    return vertices.has_value();
+}
+
 /*
     simple OBJ parser
     OBJ format reference https://en.wikipedia.org/wiki/Wavefront_.obj_file
     NOTE: following case will not work - some vertices have texture/normal coords and some not
 */
-Mesh Mesh::fromFile(const std::string& filename) {
-    std::ifstream input(filename);
-    if(!input.is_open()){
-        std::cerr << "[ERROR] COULDN'T OPEN FILE " << filename << std::endl;
-        assert(0);
-    }
-    
+Mesh Mesh::fromStream(std::istream& input){
     std::vector<glm::vec3> parsedVertices;
     std::vector<glm::vec3> parsedNormals;
     std::vector<glm::vec2> parsedTextures;
@@ -313,15 +311,21 @@ Mesh Mesh::fromFile(const std::string& filename) {
             }
         } else if(!line.starts_with("#")) {
             // not supported, but log it
-            std::cerr << "Warning, " << filename << " file has unsupported obj features: " << line << std::endl;
+            std::cerr << "Warning, OBJ file has unsupported features: " << line << std::endl;
         }
     }
-    
-
-
     Mesh mesh;
     mesh.setVertices(vertices).setNormals(normals).setTextureUnits(textures);
-
-
     return mesh;
+}
+
+
+Mesh Mesh::fromFile(const std::string& filename) {
+    std::ifstream input(filename);
+    if(!input.is_open()){
+        std::cerr << "[ERROR] COULDN'T OPEN FILE " << filename << std::endl;
+        assert(0);
+    }
+    
+    return Mesh::fromStream(input);
 }

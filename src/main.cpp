@@ -14,6 +14,8 @@
 #include <tri/program/materials/DebugMaterial.h>
 #include <tri/model/meshes/Cube.h>
 #include <tri/model/meshes/Plane.h>
+#include <tri/model/meshes/Sphere.h>
+
 #include <tri/model/meshes/VertexCube.h>
 #include <util/files.h>
 #include <iostream>
@@ -27,11 +29,12 @@
 
 /*
 small TODO list:
+> add transparency
 > add cel shader material
 > add CubemapMaterial
 > add sprites
 > add shadows
-> 
+> add hdr
 > add bloom
 > add entity tree
 */
@@ -51,21 +54,26 @@ int main(void){
     auto lightModel2 = std::make_shared<Model>();
 
     Cubemap cubemap({
-        .right = "examples/skybox/right.jpg",
-        .left = "examples/skybox/left.jpg",
-        .top = "examples/skybox/top.jpg",
-        .bottom = "examples/skybox/bottom.jpg",
-        .front = "examples/skybox/front.jpg",
-        .back = "examples/skybox/back.jpg"
+        .right = "examples/skybox/space/right.png",
+        .left = "examples/skybox/space/left.png",
+        .top = "examples/skybox/space/top.png",
+        .bottom = "examples/skybox/space/bottom.png",
+        .front = "examples/skybox/space/front.png",
+        .back = "examples/skybox/space/back.png"
     });
 
-    model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
+    //model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
+    model->setMesh(Sphere());
     model2->setMesh(Plane());
     model3->setMesh(VertexCube());
 
-    model->setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
+    //model->setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
+    model->setMaterial<TextureMaterial>(
+        std::move(Texture("examples/textures/container2.png")), 1.0, 
+        std::move(Texture("examples/textures/container2_specular.png")), 
+        32.0);
+
     model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
-//    model3->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/container2.png")), 1.0, 1.0, 1024.0);
     model3->setMaterial<TextureMaterial>(
         std::move(Texture("examples/textures/container2.png")), 1.0, 
         std::move(Texture("examples/textures/container2_specular.png")), 
@@ -140,7 +148,7 @@ int main(void){
         auto theta = glfwGetTime();
         //amb->intensity = (1 + sin(theta))/2 * 0.4;
         model->setRotationXYZ({theta, 0, theta});
-        //model3->setRotationXYZ({0, theta, 0});
+        model3->setRotationXYZ({theta, theta, 0});
         model->setTranslation({R * sin(theta), 2 * R * cos(theta), -5.0});
         
         camera.poll(window.get());
