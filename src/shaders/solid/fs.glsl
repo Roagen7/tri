@@ -12,12 +12,11 @@ uniform sampler2D specularMap;
 uniform int hasNormalMap;
 uniform sampler2D normalMap;
 
+uniform int hasHeightMap;
+uniform sampler2D heightMap;
+uniform float height_scale;
+
 // ------ textures end ----
-
-// ------ shader config params -------
-
-
-// ------ shader config params end -------
 
 uniform int uNumPointLights;
 uniform PointLight uPointLights[MAX_POINT_LIGHTS];
@@ -45,14 +44,19 @@ void main()
     vec3 outColor = vec3(0.0, 0.0, 0.0);
     outColor += ambientColor * ambientIntensity;
 
+    vec2 texCoords_val = texPos;
+    if(hasHeightMap == 1){
+        texCoords_val = parallaxMapping(texPos, TBN * viewDir, heightMap, height_scale);
+    }
+
     float specular_val = uSpecular;
     if(hasSpecularMap == 1){
-        specular_val = texture(specularMap, texPos).x;
+        specular_val = texture(specularMap, texCoords_val).x;
     }
 
     vec3 normal_val = normal;
     if(hasNormalMap == 1){
-        normal_val =texture(normalMap, texPos).xyz;
+        normal_val =texture(normalMap, texCoords_val).xyz;
         normal_val = normal_val * 2 - 1;
         normal_val = normalize(TBN * normal_val);
     }
@@ -66,7 +70,7 @@ void main()
     }
 
     if (hasTexture == 1){
-        outColor *= texture(texture0, texPos).xyz;
+        outColor *= texture(texture0, texCoords_val).xyz;
     } else {
         outColor *= col;
     }
@@ -77,6 +81,7 @@ void main()
     //texture(texture0, texPos).t
     //gl_FragColor = vec4(texture(texture0, texPos).xyz, 1.0);
     //gl_FragColor = vec4(texture(normalMap, texPos).xyz, 1.0);
+    //gl_FragColor = vec4(texture(heightMap, texPos).xyz, 1.0);
     //gl_FragColor = vec4(normal_val, 1.0);
     gl_FragColor = vec4(outColor, 1.0);
 }

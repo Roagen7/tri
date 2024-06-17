@@ -21,7 +21,7 @@ public:
         glActiveTexture(GL_TEXTURE2);
         normalMap.bind();
         glActiveTexture(GL_TEXTURE3);
-        parallaxMap.bind();
+        heightMap.bind();
         SolidMaterial::use();
     }
 
@@ -30,13 +30,13 @@ private:
         uniformInt("hasTexture", 0);
         uniformInt("hasSpecularMap", 0);
         uniformInt("hasNormalMap", 0);
-        uniformInt("hasParallaxMap", 0);
+        uniformInt("hasHeightMap", 0);
     }
 
     Texture texture;
     Texture specularMap;
     Texture normalMap;
-    Texture parallaxMap;
+    Texture heightMap;
 };
 
 class TextureMaterialBuilder{
@@ -77,6 +77,16 @@ public:
         textureMaterial->normalMap.bind();
         textureMaterial->uniformInt("normalMap", 2);
 
+        return *this;
+    }
+
+    TextureMaterialBuilder& setHeightMap(Texture&& texture, float heightScale){
+        textureMaterial->uniformInt("hasHeightMap", 1);
+        textureMaterial->uniformFloat("height_scale", heightScale);
+        textureMaterial->heightMap = std::move(texture);
+        glActiveTexture(GL_TEXTURE3);
+        textureMaterial->heightMap.bind();
+        textureMaterial->uniformInt("heightMap", 3);
         return *this;
     }
 

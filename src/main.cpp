@@ -74,7 +74,9 @@ int main(void){
 
     model2->setMaterial(TextureMaterialBuilder()
         .setShininess(1024)
-        .setTexture(std::move(Texture("examples/textures/wall.jpg")))
+        .setTexture(std::move(Texture("examples/textures/bricks.jpg")))
+        .setNormalMap(std::move(Texture("examples/textures/bricks_normal.jpg")))
+        .setHeightMap(std::move(Texture("examples/textures/bricks_heightmap.jpg")), 0.05f)
         .build()
     );
 
@@ -116,7 +118,7 @@ int main(void){
                     .setNormalMap(std::move(Texture("examples/textures/brickwall_normal.jpg")))
                     .build()
                 ).setScaleXYZ({20, 20, 20})
-                .setTranslation({-5, -3, -5});
+                .setTranslation({-5, -3, -10});
             return wallModel;
         }())
         .addLightSource(light::make_point({
@@ -137,16 +139,16 @@ int main(void){
                 .quadratic = 0.5
             }
         }))
-        // .addLightSource(light::make_dir({
-        //     .direction = {0.0, -1.0, -1.0},
-        //     .color = {1.f, 1.f, 1.f},
-        //     .intensity = 0.1
-        // }))
+        .addLightSource(light::make_dir({
+            .direction = {0.0, -1.0, -1.0},
+            .color = {1.f, 1.f, 1.f},
+            .intensity = 0.1
+        }))
         .setAmbientLight(amb);
 
     static constexpr auto R = 3.0;
 
-    model2->setScaleXYZ({20, 20, 20});
+    model2->setScaleXYZ({10, 10, 10});
     model2->setTranslation({-5.0, 10, -7.0});
     model2->setRotationXYZ({M_PI/2, 0, 0});
 
