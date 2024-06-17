@@ -22,6 +22,7 @@ public:
     Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_DEPTH_CLAMP);
+        glEnable(GL_STENCIL_TEST);
         // glEnable(GL_BLEND);
         // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         skybox.setMesh(VertexCube());
@@ -53,6 +54,4 @@ private:
     std::vector<std::shared_ptr<PointLight>> pointLights;
     std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
     std::shared_ptr<AmbientLight> ambientLight;
-    
-
 };

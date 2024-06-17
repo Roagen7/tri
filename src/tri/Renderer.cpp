@@ -10,16 +10,17 @@ void Renderer::render(){
     glViewport(0, 0, width, height);
 
     glClearColor(0, 0, 0, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glDepthFunc(GL_LESS); 
     for(auto model : this->models){
         const auto& material = model->getMaterial();
-        
-        
         setupLights(material);
         model->draw(camera);
     }
+
     glDepthFunc(GL_LEQUAL);
     skybox.draw(camera);
 

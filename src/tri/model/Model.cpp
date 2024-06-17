@@ -34,12 +34,60 @@ Model& Model::setScaleXYZ(glm::vec3 scale){
     return *this;
 }
 
-void Model::draw(const Camera& camera){      
-    material->use();
-    material->uniformMat4("rotation", glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.x, {1, 0, 0})
+void Model::borderPrehook(){
+    if(borderMaterial){
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+    } else {
+        glStencilMask(0x00);
+    }
+}
+
+
+void Model::draw(const Camera& camera){     
+    borderPrehook();
+    draw(camera, *material);
+    drawBorder(camera);
+}
+
+void Model::drawBorder(const Camera& camera){
+    if(!borderMaterial) return;
+    auto currentScale = this->scale;
+    auto currentTranslation = this->translation;
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+
+    float borderWidth = 0.2; // %
+    this->scale = this->scale * (1 + borderWidth);
+
+    draw(camera, *borderMaterial);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 0, 0xFF);
+    
+    this->scale = currentScale;
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
+}
+
+
+void Model::draw(const Camera& camera, Program& material){
+    material.use();
+    material.uniformMat4("rotation", glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.x, {1, 0, 0})
     * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.y, {0, 1, 0})
     * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.z, {0, 0, 1}));
-    material->uniformMat4("transform", glm::translate(glm::identity<glm::mat4x4>(), translation) * glm::scale(glm::identity<glm::mat4x4>(), scale));
-    material->uniformMat4("projection", camera.view());
+    material.uniformMat4("transform", glm::translate(glm::identity<glm::mat4x4>(), translation) * glm::scale(glm::identity<glm::mat4x4>(), scale));
+    material.uniformMat4("projection", camera.view());
     mesh.draw();
+}
+
+Model& Model::setBorder(glm::vec3 color){
+    borderMaterial = std::make_unique<LightMaterial>(color);
+    return *this;
+}
+
+Model& Model::removeBorder(){
+    borderMaterial.reset();
+    return *this;
 }

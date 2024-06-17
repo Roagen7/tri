@@ -2,10 +2,10 @@
 
 inline Mesh Plane(){
     Mesh mesh;
-    mesh.setVertices({ {0, 0, 0},
-            {0, 0, 1},
-            {1, 0, 0},
-            {1, 0, 1}
+    mesh.setVertices({ {-0.5, 0, -0.5},
+            {-0.5, 0, 0.5},
+            {0.5, 0, -0.5},
+            {0.5, 0, 0.5}
         }).setIndices({{0, 1, 2},
             {1, 2, 3}
         }).setNormals({

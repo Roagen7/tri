@@ -29,7 +29,6 @@
 
 /*
 small TODO list:
-> add parallax mapping
 > add transparency
 > add cel shader material
 > add CubemapMaterial
@@ -65,7 +64,8 @@ int main(void){
     model2->setMesh(Plane());
     model3->setMesh(VertexCube());
 
-    model->setMesh(Sphere()).setMaterial(TextureMaterialBuilder()
+    model->setMesh(Sphere())
+    .setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
         .setTexture(std::move(Texture("examples/textures/container2.png")))
         .setSpecularMap(std::move(Texture("examples/textures/container2_specular.png")))
@@ -78,14 +78,14 @@ int main(void){
         .setNormalMap(std::move(Texture("examples/textures/bricks_normal.jpg")))
         .setHeightMap(std::move(Texture("examples/textures/bricks_heightmap.jpg")), 0.05f)
         .build()
-    );
+    ).setBorder({0, 1, 0});
 
     model3->setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
         .setTexture(std::move(Texture("examples/textures/container2.png")))
         .setSpecularMap(std::move(Texture("examples/textures/container2_specular.png")))
         .build()
-    );
+    ).setBorder({1, 0, 0});
 
     auto amb = light::make_ambient({
         .intensity = 0.1,
@@ -104,7 +104,7 @@ int main(void){
         }())
         .add([](){
             auto lightModel = std::make_shared<Model>();
-            lightModel->setMesh(Cube()).setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0}).setTranslation(glm::vec3{0, 7.0, -4.0}).setScaleXYZ({0.3, 0.3, 0.3});
+            lightModel->setMesh(Cube()).setMaterial<LightMaterial>(glm::vec3{0.0, 0.0, 1.0}).setTranslation(glm::vec3{0, 7.0, -4.0}).setScaleXYZ({0.3, 0.3, 0.3});
             return lightModel;
         }())
         .add(model2)
@@ -118,7 +118,7 @@ int main(void){
                     .setNormalMap(std::move(Texture("examples/textures/brickwall_normal.jpg")))
                     .build()
                 ).setScaleXYZ({20, 20, 20})
-                .setTranslation({-5, -3, -10});
+                .setTranslation({-5, -2, -10});
             return wallModel;
         }())
         .addLightSource(light::make_point({
@@ -126,13 +126,13 @@ int main(void){
             .color = {1, 1, 1},
             .attentuation = {
                 .constant = 1.0,
-                .linear = 0.0,
+                .linear = 0.1,
                 .quadratic = 0.0
             }
         }))
         .addLightSource(light::make_point({
             .pos = {0, 7.0, -4.0},
-            .color = {1, 0, 0},
+            .color = {0, 0, 1},
             .attentuation = {
                 .constant = 1.0,
                 .linear = 0.0,
@@ -149,7 +149,7 @@ int main(void){
     static constexpr auto R = 3.0;
 
     model2->setScaleXYZ({10, 10, 10});
-    model2->setTranslation({-5.0, 10, -7.0});
+    model2->setTranslation({-2.5, 3, -5.0});
     model2->setRotationXYZ({M_PI/2, 0, 0});
 
     model3->setScaleXYZ({2, 2, 2});
