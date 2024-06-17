@@ -22,7 +22,7 @@ public:
     Model& setTranslation(glm::vec3 translation);
 
     Model& setMesh(const Mesh& mesh);
-    Model& setBorder(glm::vec3 color);
+    Model& setBorder(glm::vec3 color, float thickness);
     Model& removeBorder();
 
     const Program& getMaterial();
@@ -47,5 +47,10 @@ private:
     glm::vec3 scale{1, 1, 1};
     Mesh mesh;
     std::unique_ptr<Program> material{};
-    std::unique_ptr<LightMaterial> borderMaterial{};
+
+    struct {
+        std::unique_ptr<LightMaterial> material{};
+        float thickness;
+    } border;
+    
 };

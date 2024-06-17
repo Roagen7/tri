@@ -35,7 +35,7 @@ Model& Model::setScaleXYZ(glm::vec3 scale){
 }
 
 void Model::borderPrehook(){
-    if(borderMaterial){
+    if(border.material){
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
     } else {
@@ -51,17 +51,16 @@ void Model::draw(const Camera& camera){
 }
 
 void Model::drawBorder(const Camera& camera){
-    if(!borderMaterial) return;
+    if(!border.material) return;
     auto currentScale = this->scale;
     auto currentTranslation = this->translation;
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
 
-    float borderWidth = 0.2; // %
-    this->scale = this->scale * (1 + borderWidth);
+    this->scale = this->scale * (1 + border.thickness);
 
-    draw(camera, *borderMaterial);
+    draw(camera, *border.material);
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
     
@@ -82,12 +81,13 @@ void Model::draw(const Camera& camera, Program& material){
     mesh.draw();
 }
 
-Model& Model::setBorder(glm::vec3 color){
-    borderMaterial = std::make_unique<LightMaterial>(color);
+Model& Model::setBorder(glm::vec3 color, float thickness){
+    border.material = std::make_unique<LightMaterial>(color);
+    border.thickness = thickness;
     return *this;
 }
 
 Model& Model::removeBorder(){
-    borderMaterial.reset();
+    border.material.reset();
     return *this;
 }

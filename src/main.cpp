@@ -29,13 +29,15 @@
 
 /*
 small TODO list:
-> add transparency
-> add cel shader material
-> add CubemapMaterial
+> add sorting to blending
+> add postprocessing operation
 > add sprites
 > add shadows
 > add hdr
 > add bloom
+> split to examples
+> add cel shader material
+...
 > add entity tree
 */
 
@@ -78,14 +80,14 @@ int main(void){
         .setNormalMap(std::move(Texture("examples/textures/bricks_normal.jpg")))
         .setHeightMap(std::move(Texture("examples/textures/bricks_heightmap.jpg")), 0.05f)
         .build()
-    ).setBorder({0, 1, 0});
+    ).setBorder({0, 1, 0}, 0.10);
 
     model3->setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
         .setTexture(std::move(Texture("examples/textures/container2.png")))
         .setSpecularMap(std::move(Texture("examples/textures/container2_specular.png")))
         .build()
-    ).setBorder({1, 0, 0});
+    ).setBorder({1, 0, 0}, 0.05);
 
     auto amb = light::make_ambient({
         .intensity = 0.1,
@@ -120,6 +122,18 @@ int main(void){
                 ).setScaleXYZ({20, 20, 20})
                 .setTranslation({-5, -2, -10});
             return wallModel;
+        }())
+        .add([](){
+            auto grassModel = std::make_shared<Model>();
+            grassModel->setMesh(Plane())
+                .setMaterial(TextureMaterialBuilder()
+                    .setTexture(std::move(Texture("examples/textures/grass.png")))
+                    .build()
+                )
+                .setRotationXYZ({M_PI/2, 0, 0})
+                .setTranslation({-5, -1, -10})
+                .setScaleXYZ({5, 5, 5});
+            return grassModel;
         }())
         .addLightSource(light::make_point({
             .pos = {0, 0, -4.0},

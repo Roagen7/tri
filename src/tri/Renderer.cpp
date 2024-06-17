@@ -14,15 +14,15 @@ void Renderer::render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
+    glDepthFunc(GL_LEQUAL);
+    skybox.draw(camera);
+
     glDepthFunc(GL_LESS); 
     for(auto model : this->models){
         const auto& material = model->getMaterial();
         setupLights(material);
         model->draw(camera);
     }
-
-    glDepthFunc(GL_LEQUAL);
-    skybox.draw(camera);
 
     glfwSwapBuffers(&window);
     glfwPollEvents();

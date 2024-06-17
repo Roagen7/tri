@@ -83,5 +83,12 @@ void main()
     //gl_FragColor = vec4(texture(normalMap, texPos).xyz, 1.0);
     //gl_FragColor = vec4(texture(heightMap, texPos).xyz, 1.0);
     //gl_FragColor = vec4(normal_val, 1.0);
-    gl_FragColor = vec4(outColor, 1.0);
+
+    float alpha = 1.0;
+    if (hasTexture == 1 ){
+        alpha = texture(texture0, texCoords_val).a;
+        // discard;
+    }
+
+    gl_FragColor = vec4(outColor, alpha);
 }
