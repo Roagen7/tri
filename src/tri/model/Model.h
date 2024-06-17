@@ -15,11 +15,12 @@ public:
         setMaterial<DefaultMaterial>();
     };
 
-    void setRotationXYZ(glm::vec3 rotation);
-    void setScale(glm::vec3 scale);
-    void setTranslation(glm::vec3 translation);
+    Model& setRotationXYZ(glm::vec3 rotation);
+    Model& setScaleXYZ(glm::vec3 scale);
+    Model& setScale(glm::vec3 scale);
+    Model& setTranslation(glm::vec3 translation);
 
-    void setMesh(const Mesh& mesh);
+    Model& setMesh(const Mesh& mesh);
 
     const Program& getMaterial();
 
@@ -27,9 +28,8 @@ public:
     void setMaterial(A&&... args){
         this->material = std::make_unique<T>(std::forward<A>(args)...);
     }
-    
-    void setScaleXYZ(glm::vec3 scale);
 
+    Model& setMaterial(std::unique_ptr<Program>&& material);
 
     void draw(const Camera& camera);
 
@@ -40,7 +40,4 @@ private:
     glm::vec3 scale{1, 1, 1};
     Mesh mesh;
     std::unique_ptr<Program> material{};
-
-    // TODO: add default texture
-    size_t texture;
 };

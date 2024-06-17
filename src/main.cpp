@@ -29,6 +29,7 @@
 
 /*
 small TODO list:
+> add parallax mapping
 > add transparency
 > add cel shader material
 > add CubemapMaterial
@@ -63,22 +64,27 @@ int main(void){
     });
 
     //model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
-    model->setMesh(Sphere());
     model2->setMesh(Plane());
     model3->setMesh(VertexCube());
 
-    //model->setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 1.0}, 1.0, 1.0, 32.0);
-    model->setMaterial<TextureMaterial>(
-        std::move(Texture("examples/textures/container2.png")), 1.0, 
-        std::move(Texture("examples/textures/container2_specular.png")), 
-        32.0);
+    model->setMesh(Sphere()).setMaterial(TextureMaterialBuilder()
+        .setShininess(32.0)
+        .setTexture(std::move(Texture("examples/textures/container2.png")))
+        .setSpecularMap(std::move(Texture("examples/textures/container2_specular.png")))
+        .build()
+    );
 
-    model2->setMaterial<TextureMaterial>(std::move(Texture("examples/textures/wall.jpg")), 1.0, 1.0, 1024.0);
-    model3->setMaterial<TextureMaterial>(
-        std::move(Texture("examples/textures/container2.png")), 1.0, 
-        std::move(Texture("examples/textures/container2_specular.png")), 
-        32.0);
+    model2->setMaterial(TextureMaterialBuilder()
+        .setShininess(1024)
+        .setTexture(std::move(Texture("examples/textures/wall.jpg"))).build()
+    );
 
+    model3->setMaterial(TextureMaterialBuilder()
+        .setShininess(32.0)
+        .setTexture(std::move(Texture("examples/textures/container2.png")))
+        .setSpecularMap(std::move(Texture("examples/textures/container2_specular.png")))
+        .build()
+    );
 
     lightModel->setMesh(Cube());
     lightModel->setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
@@ -89,11 +95,12 @@ int main(void){
     renderer.setSkybox(std::move(cubemap));
     //renderer.setSkybox({0.2, 0.2, 0.2});
     
-    renderer.add(model);
-    renderer.add(lightModel);
-    renderer.add(lightModel2);
-    renderer.add(model2);
-    renderer.add(model3);
+    renderer
+        .add(model)
+        .add(lightModel)
+        .add(lightModel2)
+        .add(model2)
+        .add(model3);
 
     renderer.addLightSource(light::make_point({
         .pos = {0, 0, -4.0},

@@ -3,25 +3,35 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../program/Program.h"
 
-void Model::setRotationXYZ(glm::vec3 rotation){
+Model& Model::setRotationXYZ(glm::vec3 rotation){
     this->rotation = rotation;
+    return *this;
 }
 
-void Model::setTranslation(glm::vec3 translation){
+Model& Model::setTranslation(glm::vec3 translation){
     this->translation = translation;
+    return *this;
 }
 
-void Model::setMesh(const Mesh& mesh){
+Model& Model::setMesh(const Mesh& mesh){
     this->mesh = mesh;
+    return *this;
 }
+
+Model& Model::setMaterial(std::unique_ptr<Program>&& material){
+    this->material = std::move(material);
+    return *this;
+}
+
 
 const Program& Model::getMaterial(){
     if(!material) assert(0);
     return *material;
 }
 
-void Model::setScaleXYZ(glm::vec3 scale){
+Model& Model::setScaleXYZ(glm::vec3 scale){
     this->scale = scale;
+    return *this;
 }
 
 void Model::draw(const Camera& camera){      

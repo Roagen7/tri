@@ -28,7 +28,7 @@ public:
         skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
     };
     void render();
-    void add(std::shared_ptr<Model> model);
+    Renderer& add(std::shared_ptr<Model> model);
 
     void addLightSource(std::shared_ptr<PointLight> light);
     void addLightSource(std::shared_ptr<DirectionalLight> light);
