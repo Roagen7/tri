@@ -55,12 +55,14 @@ void Renderer::setupLights(const Program& material){
     }
 }
 
-void Renderer::setSkybox(glm::vec3 color){
+Renderer& Renderer::setSkybox(glm::vec3 color){
     skybox.setMaterial<SkyboxMaterial>(color);
+    return *this;
 }
 
-void Renderer::setSkybox(Cubemap&& cubemap){
+Renderer& Renderer::setSkybox(Cubemap&& cubemap){
     skybox.setMaterial<SkyboxMaterial>(std::move(cubemap));
+    return *this;
 }
 
 Renderer& Renderer::add(std::shared_ptr<Model> model){
@@ -68,17 +70,20 @@ Renderer& Renderer::add(std::shared_ptr<Model> model){
     return *this;
 }
 
-void Renderer::addLightSource(std::shared_ptr<PointLight> light){
-    if(pointLights.size() == MAX_DIR_LIGHTS) return;
+Renderer& Renderer::addLightSource(std::shared_ptr<PointLight> light){
+    if(pointLights.size() == MAX_DIR_LIGHTS) return *this;
     pointLights.push_back(light);
+    return *this;
 }
 
-void Renderer::addLightSource(std::shared_ptr<DirectionalLight> light){
-    if(directionalLights.size() == MAX_DIR_LIGHTS) return;
+Renderer& Renderer::addLightSource(std::shared_ptr<DirectionalLight> light){
+    if(directionalLights.size() == MAX_DIR_LIGHTS) return *this;
     directionalLights.push_back(light);
+    return *this;
 }
 
 
-void Renderer::setAmbientLight(std::shared_ptr<AmbientLight> light){
+Renderer& Renderer::setAmbientLight(std::shared_ptr<AmbientLight> light){
     ambientLight = light;
+    return *this;
 }

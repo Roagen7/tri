@@ -42,7 +42,7 @@ protected:
 
 private:
     void cleanup();
-  
+    glm::vec3 calculateTangent(const glm::ivec3& triangle);
 
-    GLuint VAO{}, VBOverts{}, VBOcolors{}, VBOnormals{}, VBOtexture{}, EBO{};
+    GLuint VAO{}, VBOverts{}, VBOcolors{}, VBOnormals{}, VBOtexture{}, VBOtangents, EBO{};
 };

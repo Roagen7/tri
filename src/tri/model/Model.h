@@ -25,8 +25,9 @@ public:
     const Program& getMaterial();
 
     template<typename T, typename... A>
-    void setMaterial(A&&... args){
+    Model& setMaterial(A&&... args){
         this->material = std::make_unique<T>(std::forward<A>(args)...);
+        return *this;
     }
 
     Model& setMaterial(std::unique_ptr<Program>&& material);

@@ -13,33 +13,15 @@
 class TextureMaterial : public SolidMaterial {
     friend class TextureMaterialBuilder;
 public:
-
-    // TextureMaterial(Texture&& texture, float diffuse, float specular, float shininess): SolidMaterial({1, 1, 1}, diffuse, specular, shininess), texture(std::move(texture)){
-    //     uniformInt("hasTexture", 1);
-    //     uniformInt("hasSpecularMap", 0);
-
-    //     glActiveTexture(GL_TEXTURE0);
-    //     texture.bind();
-    //     uniformInt("texture0", 0);
-    // }
-
-    // TextureMaterial(Texture&& texture, float diffuse, Texture&& specularMap, float shininess) :  SolidMaterial({1, 1, 1}, diffuse, 0.0, shininess), texture(std::move(texture)), specularMap(std::move(specularMap)){
-    //     uniformInt("hasTexture", 1);
-    //     uniformInt("hasSpecularMap", 1);
-
-    //     glActiveTexture(GL_TEXTURE0);
-    //     texture.bind();
-    //     uniformInt("texture0", 0);
-    //     glActiveTexture(GL_TEXTURE1);
-    //     specularMap.bind();
-    //     uniformInt("texture1", 1);
-    // }
-
     void use() const override {
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
         glActiveTexture(GL_TEXTURE1);
         specularMap.bind();
+        glActiveTexture(GL_TEXTURE2);
+        normalMap.bind();
+        glActiveTexture(GL_TEXTURE3);
+        parallaxMap.bind();
         SolidMaterial::use();
     }
 
@@ -47,11 +29,14 @@ private:
     TextureMaterial(float diffuse = 1.0, float specular = 1.0, float shininess = 1.0): SolidMaterial({1, 1, 1}, diffuse, specular, shininess){
         uniformInt("hasTexture", 0);
         uniformInt("hasSpecularMap", 0);
+        uniformInt("hasNormalMap", 0);
         uniformInt("hasParallaxMap", 0);
     }
 
     Texture texture;
     Texture specularMap;
+    Texture normalMap;
+    Texture parallaxMap;
 };
 
 class TextureMaterialBuilder{
@@ -79,7 +64,18 @@ public:
         textureMaterial->specularMap = std::move(texture);
         glActiveTexture(GL_TEXTURE1);
         textureMaterial->specularMap.bind();
-        textureMaterial->uniformInt("texture1", 1);
+        textureMaterial->uniformInt("specularMap", 1);
+
+        return *this;
+    }
+
+
+    TextureMaterialBuilder& setNormalMap(Texture&& texture){
+        textureMaterial->uniformInt("hasNormalMap", 1);
+        textureMaterial->normalMap = std::move(texture);
+        glActiveTexture(GL_TEXTURE2);
+        textureMaterial->normalMap.bind();
+        textureMaterial->uniformInt("normalMap", 2);
 
         return *this;
     }

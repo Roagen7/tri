@@ -30,17 +30,13 @@ public:
     void render();
     Renderer& add(std::shared_ptr<Model> model);
 
-    void addLightSource(std::shared_ptr<PointLight> light);
-    void addLightSource(std::shared_ptr<DirectionalLight> light);
-    void setAmbientLight(std::shared_ptr<AmbientLight> light);
+    Renderer& addLightSource(std::shared_ptr<PointLight> light);
+    Renderer& addLightSource(std::shared_ptr<DirectionalLight> light);
+    Renderer& setAmbientLight(std::shared_ptr<AmbientLight> light);
     
-
     // for now only solid color
-    void setSkybox(glm::vec3 color);
-    void setSkybox(Cubemap&& cubemap);
-
-    // TODO
-    void setSkybox(/*cubemap*/);
+    Renderer& setSkybox(glm::vec3 color);
+    Renderer& setSkybox(Cubemap&& cubemap);
 private:
 
     void setupLights(const Program& material);

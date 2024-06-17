@@ -7,7 +7,10 @@ uniform int hasTexture;
 uniform sampler2D texture0;
 
 uniform int hasSpecularMap;
-uniform sampler2D texture1;
+uniform sampler2D specularMap;
+
+uniform int hasNormalMap;
+uniform sampler2D normalMap;
 
 // ------ textures end ----
 
@@ -34,6 +37,8 @@ in vec3 col;
 in vec3 normal;
 in vec4 worldPos;
 in vec2 texPos;
+in vec3 tangent;
+in mat3 TBN;
 
 void main()
 {   
@@ -42,15 +47,22 @@ void main()
 
     float specular_val = uSpecular;
     if(hasSpecularMap == 1){
-        specular_val = texture(texture1, texPos).x;
+        specular_val = texture(specularMap, texPos).x;
     }
 
+    vec3 normal_val = normal;
+    if(hasNormalMap == 1){
+        normal_val =texture(normalMap, texPos).xyz;
+        normal_val = normal_val * 2 - 1;
+        normal_val = normalize(TBN * normal_val);
+    }
+    
     for(int i = 0; i < uNumPointLights; i++){
-        outColor +=  calcPointLight(uPointLights[i], normal, viewDir, worldPos, uShininess, specular_val, uDiffuse);
+        outColor +=  calcPointLight(uPointLights[i], normal_val, viewDir, worldPos, uShininess, specular_val, uDiffuse);
     }
 
     for(int i = 0; i < uNumDirLights; i++){
-        outColor +=  calcDirLight(uDirectionalLights[i], normal, viewDir, uShininess, uSpecular, uDiffuse);
+        outColor +=  calcDirLight(uDirectionalLights[i], normal_val, viewDir, uShininess, specular_val, uDiffuse);
     }
 
     if (hasTexture == 1){
@@ -63,5 +75,8 @@ void main()
     outColor.y = min(outColor.y, 1.0);
     outColor.z = min(outColor.z, 1.0);
     //texture(texture0, texPos).t
+    //gl_FragColor = vec4(texture(texture0, texPos).xyz, 1.0);
+    //gl_FragColor = vec4(texture(normalMap, texPos).xyz, 1.0);
+    //gl_FragColor = vec4(normal_val, 1.0);
     gl_FragColor = vec4(outColor, 1.0);
 }

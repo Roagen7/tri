@@ -51,8 +51,6 @@ int main(void){
     auto model = std::make_shared<Model>();
     auto model2 = std::make_shared<Model>();
     auto model3 = std::make_shared<Model>();
-    auto lightModel = std::make_shared<Model>();
-    auto lightModel2 = std::make_shared<Model>();
 
     Cubemap cubemap({
         .right = "examples/skybox/space/right.png",
@@ -76,7 +74,8 @@ int main(void){
 
     model2->setMaterial(TextureMaterialBuilder()
         .setShininess(1024)
-        .setTexture(std::move(Texture("examples/textures/wall.jpg"))).build()
+        .setTexture(std::move(Texture("examples/textures/wall.jpg")))
+        .build()
     );
 
     model3->setMaterial(TextureMaterialBuilder()
@@ -86,62 +85,66 @@ int main(void){
         .build()
     );
 
-    lightModel->setMesh(Cube());
-    lightModel->setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
-    lightModel2->setMesh(Cube());
-    lightModel2->setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0});
-    
-    Renderer renderer(*window.get(), camera);
-    renderer.setSkybox(std::move(cubemap));
-    //renderer.setSkybox({0.2, 0.2, 0.2});
-    
-    renderer
-        .add(model)
-        .add(lightModel)
-        .add(lightModel2)
-        .add(model2)
-        .add(model3);
-
-    renderer.addLightSource(light::make_point({
-        .pos = {0, 0, -4.0},
-        .color = {1, 1, 1},
-        .attentuation = {
-            .constant = 1.0,
-            .linear = 0.0,
-            .quadratic = 0.0
-        }
-    }));
-
-    renderer.addLightSource(light::make_point({
-        .pos = {0, 7.0, -4.0},
-        .color = {1, 0, 0},
-        .attentuation = {
-            .constant = 1.0,
-            .linear = 0.0,
-            .quadratic = 0.5
-        }
-    }));
-
     auto amb = light::make_ambient({
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
-
-    renderer.addLightSource(light::make_dir({
-        .direction = {0.0, -1.0, -1.0},
-        .color = {1.f, 1.f, 1.f},
-        .intensity = 0.1
-    }));
-
-    renderer.setAmbientLight(amb);
+    Renderer renderer(*window.get(), camera);
+    renderer
+        .setSkybox(std::move(cubemap))
+        .add(model)
+        .add([](){
+            auto lightModel = std::make_shared<Model>();
+            lightModel->setMesh(Cube()).setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});
+            lightModel->setTranslation({0, 0.0, -4.0});
+            lightModel->setScaleXYZ({0.3, 0.3, 0.3});
+            return lightModel;
+        }())
+        .add([](){
+            auto lightModel = std::make_shared<Model>();
+            lightModel->setMesh(Cube()).setMaterial<LightMaterial>(glm::vec3{1.0, 0.0, 0.0}).setTranslation(glm::vec3{0, 7.0, -4.0}).setScaleXYZ({0.3, 0.3, 0.3});
+            return lightModel;
+        }())
+        .add(model2)
+        .add(model3)
+        .add([](){
+            auto wallModel = std::make_shared<Model>();
+            wallModel->setMesh(Plane())
+                .setMaterial(TextureMaterialBuilder()
+                    .setShininess(1024)
+                    .setTexture(std::move(Texture("examples/textures/brickwall.jpg")))
+                    .setNormalMap(std::move(Texture("examples/textures/brickwall_normal.jpg")))
+                    .build()
+                ).setScaleXYZ({20, 20, 20})
+                .setTranslation({-5, -3, -5});
+            return wallModel;
+        }())
+        .addLightSource(light::make_point({
+            .pos = {0, 0, -4.0},
+            .color = {1, 1, 1},
+            .attentuation = {
+                .constant = 1.0,
+                .linear = 0.0,
+                .quadratic = 0.0
+            }
+        }))
+        .addLightSource(light::make_point({
+            .pos = {0, 7.0, -4.0},
+            .color = {1, 0, 0},
+            .attentuation = {
+                .constant = 1.0,
+                .linear = 0.0,
+                .quadratic = 0.5
+            }
+        }))
+        // .addLightSource(light::make_dir({
+        //     .direction = {0.0, -1.0, -1.0},
+        //     .color = {1.f, 1.f, 1.f},
+        //     .intensity = 0.1
+        // }))
+        .setAmbientLight(amb);
 
     static constexpr auto R = 3.0;
-
-    lightModel->setTranslation({0, 0.0, -4.0});
-    lightModel->setScaleXYZ({0.3, 0.3, 0.3});
-
-    lightModel2->setTranslation({0, 7.0, -4.0});
-    lightModel2->setScaleXYZ({0.3, 0.3, 0.3});
 
     model2->setScaleXYZ({20, 20, 20});
     model2->setTranslation({-5.0, 10, -7.0});

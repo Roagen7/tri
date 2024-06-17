@@ -91,12 +91,36 @@ void Mesh::setup(){
         glEnableVertexAttribArray(2);
     }
 
+    if(normals && texture && vertices){
+        // calculate tangents for normal mapping
+        // https://computergraphics.stackexchange.com/questions/3990/where-is-the-best-place-for-tangent-bitangent-calculation-in-shader-or-in-c-cpp
+        std::vector<glm::vec3> tangents;
+
+        if(indices){
+            for(const auto& triangle : *indices) {
+                auto tangent = calculateTangent(triangle);
+                tangents.push_back(tangent); tangents.push_back(tangent); tangents.push_back(tangent);
+            }
+        } else {
+            for(int i = 0; i < vertices->size(); i+=3) {
+                auto tangent = calculateTangent({i, i+1, i+2});
+                tangents.push_back(tangent); tangents.push_back(tangent); tangents.push_back(tangent);
+            }
+        }
+
+        glGenBuffers(1, &VBOtangents);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOtangents);
+        glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(GLfloat) * 3, tangents.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(3);    
+    }
+
     if(colors){
         glGenBuffers(1, &VBOcolors);
         glBindBuffer(GL_ARRAY_BUFFER, VBOcolors);
         glBufferData(GL_ARRAY_BUFFER, colors->size() * sizeof(GLfloat) * 3, colors->data(), GL_STATIC_DRAW);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
-        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
+        glEnableVertexAttribArray(4);
     }
 
     glBindVertexArray(0);
@@ -109,8 +133,32 @@ void Mesh::cleanup(){
     glDeleteBuffers(1, &VBOcolors);
     glDeleteBuffers(1, &VBOverts);
     glDeleteBuffers(1, &VBOnormals);
+    glDeleteBuffers(1, &VBOtangents);
     glDeleteBuffers(1, &EBO);
 }
+
+// source: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+glm::vec3 Mesh::calculateTangent(const glm::ivec3& triangle){
+    assert(vertices);
+    assert(texture);
+    const auto& verticesNonOpt = *vertices;
+    const auto& texturesNonOpt = *texture;
+    auto pos1 = verticesNonOpt[triangle.x]; auto pos2 = verticesNonOpt[triangle.y]; auto pos3 = verticesNonOpt[triangle.z];
+    auto uv1 = texturesNonOpt[triangle.x]; auto uv2 = texturesNonOpt[triangle.y]; auto uv3 = texturesNonOpt[triangle.z];
+
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;  
+
+    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+    return {
+        f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
+        f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
+        f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
+    };
+}
+
 
 Mesh::~Mesh(){
     cleanup(); 
@@ -132,12 +180,13 @@ Mesh::Mesh(Mesh&& other) noexcept
       normals(std::move(other.normals)),
       texture(std::move(other.texture)),
       VAO(other.VAO), VBOverts(other.VBOverts), VBOcolors(other.VBOcolors),
-      VBOnormals(other.VBOnormals), VBOtexture(other.VBOtexture), EBO(other.EBO) {
+      VBOnormals(other.VBOnormals), VBOtexture(other.VBOtexture), VBOtangents(other.VBOtangents), EBO(other.EBO) {
     other.VAO = 0;
     other.VBOverts = 0;
     other.VBOcolors = 0;
     other.VBOnormals = 0;
     other.VBOtexture = 0;
+    other.VBOtangents = 0;
     other.EBO = 0;
 }
 
@@ -174,6 +223,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     VBOcolors = other.VBOcolors;
     VBOnormals = other.VBOnormals;
     VBOtexture = other.VBOtexture;
+    VBOtangents = other.VBOtangents;
     EBO = other.EBO;
 
     other.VAO = 0;
@@ -181,6 +231,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
     other.VBOcolors = 0;
     other.VBOnormals = 0;
     other.VBOtexture = 0;
+    other.VBOtangents = 0;
     other.EBO = 0;
 
     return *this;
