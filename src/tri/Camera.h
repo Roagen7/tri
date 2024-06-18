@@ -13,6 +13,7 @@ public:
     Camera(int w, int h, glm::vec3 pos, glm::vec3 dir): w(w), h(h), pos(pos), dir(dir), sens(100.f), speed(.5f) {}
     void poll(GLFWwindow* window);
     glm::vec3 getDir();
+    glm::vec3 getPos();
     glm::mat4 view(float zFar = 100.0f) const;
 
 private:

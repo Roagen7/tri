@@ -39,8 +39,11 @@ public:
     // for now only solid color
     Renderer& setSkybox(glm::vec3 color);
     Renderer& setSkybox(Cubemap&& cubemap);
-private:
 
+private:
+    void renderModels();
+    void renderModelsWithAlpha();
+    void renderModel(Model* model);
     void setupLights(const Program& material);
 
     GLFWwindow& window;

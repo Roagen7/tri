@@ -20,10 +20,15 @@ public:
     Model& setScaleXYZ(glm::vec3 scale);
     Model& setScale(glm::vec3 scale);
     Model& setTranslation(glm::vec3 translation);
+    glm::vec3 getWorldPosition() const;
+
+    Model& enableTransparency();
 
     Model& setMesh(const Mesh& mesh);
     Model& setBorder(glm::vec3 color, float thickness);
     Model& removeBorder();
+
+    bool hasTransparency();
 
     const Program& getMaterial();
 
@@ -45,6 +50,7 @@ private:
     glm::vec3 rotation{};
     glm::vec3 translation{};
     glm::vec3 scale{1, 1, 1};
+    bool transparency{false};
     Mesh mesh;
     std::unique_ptr<Program> material{};
 

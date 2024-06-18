@@ -29,6 +29,11 @@ const Program& Model::getMaterial(){
     return *material;
 }
 
+glm::vec3 Model::getWorldPosition() const{
+    return this->translation;
+}
+
+
 Model& Model::setScaleXYZ(glm::vec3 scale){
     this->scale = scale;
     return *this;
@@ -68,6 +73,15 @@ void Model::drawBorder(const Camera& camera){
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
 
+}
+    
+Model& Model::enableTransparency(){
+    transparency=true;
+    return *this;
+}
+
+bool Model::hasTransparency(){
+    return transparency;
 }
 
 

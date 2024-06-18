@@ -14,6 +14,11 @@ glm::vec3 Camera::getDir(){
     return dir;
 }
 
+glm::vec3 Camera::getPos(){
+    return pos;
+}
+
+
 void Camera::poll(GLFWwindow *window) {
     int iWidth, iHeight;
     glfwGetWindowSize(window, &iWidth, &iHeight);

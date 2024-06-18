@@ -3,6 +3,9 @@
 #include <fmt/format.h>
 
 #include <tri/program/materials/SkyboxMaterial.h>
+#include <algorithm>
+#include <limits>
+#include <boost/range/adaptor/reversed.hpp>
   
 void Renderer::render(){
     int width, height;
@@ -18,11 +21,10 @@ void Renderer::render(){
     skybox.draw(camera);
 
     glDepthFunc(GL_LESS); 
-    for(auto model : this->models){
-        const auto& material = model->getMaterial();
-        setupLights(material);
-        model->draw(camera);
-    }
+    
+    // blending requirement
+    renderModels();
+    renderModelsWithAlpha();
 
     glfwSwapBuffers(&window);
     glfwPollEvents();
@@ -54,6 +56,40 @@ void Renderer::setupLights(const Program& material){
         material.uniformVec3(fmt::format("{}.direction", prefix), light->direction);
         material.uniformFloat(fmt::format("{}.intensity", prefix), light->intensity);
     }
+}
+
+void Renderer::renderModels(){
+    for(const auto& model : this->models){
+        if(model->hasTransparency()){
+            continue;
+        }
+        renderModel(model.get());
+    }
+}
+ 
+
+void Renderer::renderModelsWithAlpha(){
+    auto pos = camera.getPos();
+    std::map<float, Model*> sorted;
+
+    for(const auto& model : this->models){
+        float distance = glm::length(pos - model->getWorldPosition());
+        if(!model->hasTransparency()){
+            continue;
+        } 
+        sorted[distance] = model.get();
+    }
+
+    for ( const auto& [_, model] : boost::adaptors::reverse(sorted)){
+        renderModel(model);
+    }
+
+}
+
+void Renderer::renderModel(Model* model){
+    const auto& material = model->getMaterial();
+    setupLights(material);
+    model->draw(camera);
 }
 
 Renderer& Renderer::setSkybox(glm::vec3 color){

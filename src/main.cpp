@@ -29,7 +29,8 @@
 
 /*
 small TODO list:
-> add sorting to blending
+> refactor (namespaces + better names for libs + example targets)
+> add heightmap model
 > add postprocessing operation
 > add sprites
 > add shadows
@@ -132,7 +133,19 @@ int main(void){
                 )
                 .setRotationXYZ({M_PI/2, 0, 0})
                 .setTranslation({-5, -1, -10})
-                .setScaleXYZ({5, 5, 5});
+                .setScaleXYZ({5, 5, 5}).enableTransparency();
+            return grassModel;
+        }())
+        .add([](){
+            auto grassModel = std::make_shared<Model>();
+            grassModel->setMesh(Plane())
+                .setMaterial(TextureMaterialBuilder()
+                    .setTexture(std::move(Texture("examples/textures/grass.png")))
+                    .build()
+                )
+                .setRotationXYZ({M_PI/2, 0, 0})
+                .setTranslation({-5, -1, -12})
+                .setScaleXYZ({5, 5, 5}).enableTransparency();
             return grassModel;
         }())
         .addLightSource(light::make_point({
