@@ -1,5 +1,5 @@
 # A simple 3d engine built using OpenGL
-For now see [main.cpp](src/main.cpp) for example usage.
+See [examples](examples) for example usage.
 
 Core features: 
 1. creating meshes/models
@@ -11,3 +11,4 @@ Core features:
 7. dynamic shader library (to avoid ubershader approach)
 
 More to be done.
+For now the engine comes as a standalone library (tricore and triutils). 

@@ -18,12 +18,12 @@ add_executable(engine_test
 
 target_link_libraries(
   engine_test
-  tri
+  tricore
   GTest::gtest_main
   gmock_main
   glfw
   glm
-  util
+  triutil
 )
 
 target_include_directories(engine_test PUBLIC ${SOURCE_DIR} ${TEST_DIR})
