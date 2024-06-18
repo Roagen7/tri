@@ -1,34 +1,20 @@
 /*
-    This scene presents the following features:
-    > basic engine features
-    > specular maps, parallax maps, normal maps
-    > transparency
-    > light sources
-    > outlines
-    > skybox
+    this scene shows tesselation
 */
-
 #include <glad/glad.h>
 #include "glfwinclude.h"
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <stdlib.h>
-#include <stdio.h>
 #include <tricore/Renderer.h>
 #include <tricore/program/Program.h>
-#include <tricore/program/materials/SolidMaterial.h>
 #include <tricore/program/materials/LightMaterial.h>
 #include <tricore/program/materials/SkyboxMaterial.h>
-#include <tricore/program/materials/DebugMaterial.h>
 #include <tricore/model/meshes/Cube.h>
-#include <tricore/model/meshes/Plane.h>
 #include <tricore/model/meshes/Sphere.h>
 
-#include <tricore/model/meshes/VertexCube.h>
 #include <triutil/files.h>
-#include <iostream>
 #include <tricore/model/Mesh.h>
 #include <tricore/Camera.h>
 #include <tricore/model/Model.h>
@@ -36,6 +22,7 @@
 #include <tricore/texture/Texture.h>
 #include <tricore/program/materials/TextureMaterial.h>
 #include <tricore/texture/Cubemap.h>
+#include <tricore/model/HeightmapModel.h>
 
 using namespace tri::core;
 using namespace tri::core::materials;
@@ -50,15 +37,9 @@ int main(void){
             
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     auto model = std::make_shared<Model>();
-     
-    model->setMesh(Sphere())
-    .setMaterial(TextureMaterialBuilder()
-        .setShininess(32.0)
-        .setTexture(std::move(Texture("examples/data/textures/container2.png")))
-        .setSpecularMap(std::move(Texture("examples/data/textures/container2_specular.png")))
-        .build()
-    );
 
+    
+     
     auto amb = light::make_ambient({
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
@@ -73,7 +54,12 @@ int main(void){
             .front = "examples/data/skybox/front.jpg",
             .back = "examples/data/skybox/back.jpg"
         }))
-        .add(model)
+        .add([](){
+            auto heightmapModel = std::make_shared<HeightmapModel>(std::move(Texture("examples/data/textures/iceland_heightmap.png")), 0.5);
+            heightmapModel->setScaleXYZ({30, 30, 30}).setTranslation({0, -4.0, 0.0});
+            
+            return heightmapModel;
+        }())
         .add([](){
             auto lightModel = std::make_shared<Model>();
             lightModel->setMesh(Cube()).setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0});

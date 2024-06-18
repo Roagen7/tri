@@ -43,6 +43,9 @@ namespace tri::core {
 
         void draw(const Camera& camera);
 
+    protected:
+        Mesh mesh;
+
     private:
         void drawBorder(const Camera& camera);
         void draw(const Camera& camera, Program& material);
@@ -52,7 +55,6 @@ namespace tri::core {
         glm::vec3 translation{};
         glm::vec3 scale{1, 1, 1};
         bool transparency{false};
-        Mesh mesh;
         std::unique_ptr<Program> material{};
 
         struct {

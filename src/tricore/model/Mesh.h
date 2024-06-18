@@ -29,6 +29,7 @@ namespace tri::core {
         static Mesh fromStream(std::istream& stream);
 
         bool hasVertices();
+        void enableTesselation();
         void draw() const;
 
         ~Mesh();
@@ -43,6 +44,7 @@ namespace tri::core {
         std::optional<std::vector<glm::vec2>> texture{};
 
     private:
+        bool tesselation{false};
         void cleanup();
         glm::vec3 calculateTangent(const glm::ivec3& triangle);
 

@@ -40,6 +40,7 @@ class Renderer {
         Renderer& setSkybox(glm::vec3 color);
         Renderer& setSkybox(Cubemap&& cubemap);
 
+        Renderer& wireframe();
     private:
         void renderModels();
         void renderModelsWithAlpha();

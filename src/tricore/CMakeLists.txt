@@ -4,6 +4,7 @@ target_sources(tricore PUBLIC
 ${SOURCE_DIR}/tricore/program/Program.cpp
 ${SOURCE_DIR}/tricore/program/ShaderLib.cpp 
 ${SOURCE_DIR}/tricore/model/Mesh.cpp 
+${SOURCE_DIR}/tricore/model/HeightmapModel.cpp 
 ${SOURCE_DIR}/tricore/Camera.cpp 
 ${SOURCE_DIR}/tricore/model/Model.cpp 
 ${SOURCE_DIR}/tricore/Renderer.cpp

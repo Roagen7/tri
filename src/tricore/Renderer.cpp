@@ -33,6 +33,12 @@ void Renderer::render(){
     glfwPollEvents();
 }
 
+Renderer& Renderer::wireframe(){
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    return *this;
+}
+
+
 void Renderer::setupLights(const Program& material){
     material.uniformVec3("viewDir", camera.getDir());
     material.uniformVec3("ambientColor", ambientLight->color);

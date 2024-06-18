@@ -23,12 +23,46 @@ namespace tri::core::materials {
             SolidMaterial::use();
         }
 
-    private:
+    protected:
         TextureMaterial(float diffuse = 1.0, float specular = 1.0, float shininess = 1.0): SolidMaterial({1, 1, 1}, diffuse, specular, shininess){
             uniformInt("hasTexture", 0);
             uniformInt("hasSpecularMap", 0);
             uniformInt("hasNormalMap", 0);
             uniformInt("hasHeightMap", 0);
+        }
+
+        void setTexture(Texture&& texture){
+            uniformInt("hasTexture", 1);
+            this->texture = std::move(texture);
+            glActiveTexture(GL_TEXTURE0);
+            this->texture.bind();
+            uniformInt("texture0", 0);
+        }
+
+        void setSpecularMap(Texture&& texture){
+            uniformInt("hasSpecularMap", 1);
+            specularMap = std::move(texture);
+            glActiveTexture(GL_TEXTURE1);
+            specularMap.bind();
+            uniformInt("specularMap", 1);
+        }
+
+
+        void setNormalMap(Texture&& texture){
+            uniformInt("hasNormalMap", 1);
+            normalMap = std::move(texture);
+            glActiveTexture(GL_TEXTURE2);
+            normalMap.bind();
+            uniformInt("normalMap", 2);
+        }
+
+        void setHeightMap(Texture&& texture, float heightScale){
+            uniformInt("hasHeightMap", 1);
+            uniformFloat("height_scale", heightScale);
+            heightMap = std::move(texture);
+            glActiveTexture(GL_TEXTURE3);
+            heightMap.bind();
+            uniformInt("heightMap", 3);
         }
 
         Texture texture;
@@ -48,43 +82,23 @@ namespace tri::core::materials {
         }
 
         TextureMaterialBuilder& setTexture(Texture&& texture){
-            textureMaterial->uniformInt("hasTexture", 1);
-            textureMaterial->texture = std::move(texture);
-            glActiveTexture(GL_TEXTURE0);
-            textureMaterial->texture.bind();
-            textureMaterial->uniformInt("texture0", 0);
-
+            textureMaterial->setTexture(std::move(texture));
             return *this;
         }
 
         TextureMaterialBuilder& setSpecularMap(Texture&& texture){
-            textureMaterial->uniformInt("hasSpecularMap", 1);
-            textureMaterial->specularMap = std::move(texture);
-            glActiveTexture(GL_TEXTURE1);
-            textureMaterial->specularMap.bind();
-            textureMaterial->uniformInt("specularMap", 1);
-
+            textureMaterial->setSpecularMap(std::move(texture));
             return *this;
         }
 
 
         TextureMaterialBuilder& setNormalMap(Texture&& texture){
-            textureMaterial->uniformInt("hasNormalMap", 1);
-            textureMaterial->normalMap = std::move(texture);
-            glActiveTexture(GL_TEXTURE2);
-            textureMaterial->normalMap.bind();
-            textureMaterial->uniformInt("normalMap", 2);
-
+            textureMaterial->setNormalMap(std::move(texture));
             return *this;
         }
 
         TextureMaterialBuilder& setHeightMap(Texture&& texture, float heightScale){
-            textureMaterial->uniformInt("hasHeightMap", 1);
-            textureMaterial->uniformFloat("height_scale", heightScale);
-            textureMaterial->heightMap = std::move(texture);
-            glActiveTexture(GL_TEXTURE3);
-            textureMaterial->heightMap.bind();
-            textureMaterial->uniformInt("heightMap", 3);
+            textureMaterial->setHeightMap(std::move(texture), heightScale);
             return *this;
         }
 

@@ -2,6 +2,8 @@
 #define MAX_DIR_LIGHTS 3
 
 
+uniform int flatColor;
+
 // ------ textures -----
 uniform int hasTexture;
 uniform sampler2D texture0;
@@ -41,6 +43,10 @@ in mat3 TBN;
 
 void main()
 {   
+    if(flatColor == 1){
+        gl_FragColor = vec4(col, 1.0);
+        return ;
+    }
     vec3 outColor = vec3(0.0, 0.0, 0.0);
     outColor += ambientColor * ambientIntensity;
 
@@ -89,6 +95,5 @@ void main()
         alpha = texture(texture0, texCoords_val).a;
         // discard;
     }
-
     gl_FragColor = vec4(outColor, alpha);
 }

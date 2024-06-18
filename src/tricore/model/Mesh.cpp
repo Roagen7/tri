@@ -31,13 +31,20 @@ Mesh& Mesh::setNormals(std::vector<glm::vec3> normals){
     return *this;
 }
 
+void Mesh::enableTesselation(){
+    tesselation = true;
+}
+
+
 void Mesh::draw() const{
     glBindVertexArray(VAO);
 
+    auto primitive = tesselation ? GL_PATCHES : GL_TRIANGLES;
+
     if(indices){
-        glDrawElements(GL_TRIANGLES, indices->size() * 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(primitive, indices->size() * 3, GL_UNSIGNED_INT, 0);
     } else if (vertices){
-        glDrawArrays(GL_TRIANGLES, 0, vertices->size() * 3);
+        glDrawArrays(primitive, 0, vertices->size() * 3);
     }
     glBindVertexArray(0);        
 }

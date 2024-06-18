@@ -7,22 +7,23 @@ in vec3 vPos;
 in vec3 vNormal;
 in vec2 vTexPos;
 in vec3 vTangent;
+
 out vec3 col;
 out vec3 normal;
 out vec4 worldPos;
 out vec2 texPos;
 out vec3 tangent;
 out mat3 TBN;
-
+out vec4 ogPos;
 
 void main(){
-    gl_Position = projection * transform * rotation * vec4(vPos, 1.0);
+    ogPos = vec4(vPos, 1.0);
+    gl_Position = projection * transform * rotation * ogPos;
     col = uColor;
     texPos = vTexPos;
     tangent = vTangent;
     normal = (rotation * vec4(vNormal, 1.0)).xyz;
     worldPos = transform * rotation * vec4(vPos, 1.0);
-
 
     // ---- TBN matrix calculation for tangent space maps ---
     
@@ -31,6 +32,4 @@ void main(){
     vec3 N = normalize(normal);
 
     TBN = mat3(T, B, N);
-
-
 }

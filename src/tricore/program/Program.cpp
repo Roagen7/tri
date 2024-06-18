@@ -49,11 +49,26 @@ const Program& Program::uniformInt(const std::string& name, int value) const {
     });
 }
 
-void Program::readShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath){
-    vsSource = ShaderLib::include(readShader(vertexShaderPath));
-    fsSource = ShaderLib::include(readShader(fragmentShaderPath));
+void Program::readShaders(const std::string& vertexShaderPath, 
+const std::string& fragmentShaderPath, 
+const std::string& geometryShaderPath,
+const std::string& tesselationEvaluationShaderPath,
+const std::string& tesselationControlShaderPath)
+{   
+    if(!fragmentShaderPath.empty()){
+        fsSource = ShaderLib::include(readShader(fragmentShaderPath));
+    }
+    if(!vertexShaderPath.empty()){
+        vsSource = ShaderLib::include(readShader(vertexShaderPath));
+    }
     if(!geometryShaderPath.empty()){
-        auto gsSource = ShaderLib::include(readShader(geometryShaderPath));
+        gsSource = readShader(geometryShaderPath);
+    }
+    if(!tesselationEvaluationShaderPath.empty()){
+        tesSource = readShader(tesselationEvaluationShaderPath);
+    }
+    if(!tesselationControlShaderPath.empty()){
+        tcsSource = readShader(tesselationControlShaderPath);
     }
 }
 
@@ -65,6 +80,8 @@ void Program::compileShaders(){
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    tesselationControlShader = glCreateShader(GL_TESS_CONTROL_SHADER);
+    tesselationEvaluationShader = glCreateShader(GL_TESS_EVALUATION_SHADER);
     program = glCreateProgram();
     
     glShaderSource(vertexShader, 1, &vsSourceCStr, NULL);
@@ -88,6 +105,22 @@ void Program::compileShaders(){
         glAttachShader(program, geometryShader);
     }
 
+    if(!tesSource.empty()){
+        auto tesSourceCStr = tesSource.c_str();
+        glShaderSource(tesselationEvaluationShader, 1, &tesSourceCStr, NULL);
+        glCompileShader(tesselationEvaluationShader);
+        getShaderError("Tesselation evaluation: \n", tesselationEvaluationShader);
+        glAttachShader(program, tesselationEvaluationShader);
+    }
+
+    if(!tcsSource.empty()){
+        auto tcsSourceCStr = tcsSource.c_str();
+        glShaderSource(tesselationControlShader, 1, &tcsSourceCStr, NULL);
+        glCompileShader(tesselationControlShader);
+        getShaderError("Tesselation control: \n", tesselationControlShader);
+        glAttachShader(program, tesselationControlShader);
+    }
+
     ShaderLib::attach(program);
 
     glLinkProgram(program);
@@ -99,6 +132,8 @@ void Program::cleanup(){
     glDeleteShader(vertexShader); 
     glDeleteShader(fragmentShader);
     glDeleteShader(geometryShader);
+    glDeleteShader(tesselationControlShader);
+    glDeleteShader(tesselationEvaluationShader);
 }
 
 Program::Program(const Program& other)
@@ -108,11 +143,14 @@ Program::Program(const Program& other)
 
 Program::Program(Program&& other) noexcept
     : program(other.program), vsSource(std::move(other.vsSource)), fsSource(std::move(other.fsSource)),
-      vertexShader(other.vertexShader), fragmentShader(other.fragmentShader), geometryShader(other.geometryShader) {
+      vertexShader(other.vertexShader), fragmentShader(other.fragmentShader), geometryShader(other.geometryShader),
+      tesselationControlShader(other.tesselationControlShader), tesselationEvaluationShader(other.tesselationEvaluationShader) {
     other.program = 0;
     other.vertexShader = 0;
     other.fragmentShader = 0;
     other.geometryShader = 0;
+    other.tesselationControlShader = 0;
+    other.tesselationEvaluationShader = 0;
 }
 
 Program& Program::operator=(const Program& other) {
@@ -137,11 +175,15 @@ Program& Program::operator=(Program&& other) noexcept {
     vertexShader = other.vertexShader;
     fragmentShader = other.fragmentShader;
     geometryShader = other.geometryShader;
+    tesselationControlShader = other.tesselationControlShader;
+    tesselationEvaluationShader = other.tesselationEvaluationShader;
 
     other.program = 0;
     other.vertexShader = 0;
     other.fragmentShader = 0;
     other.geometryShader = 0;
+    other.tesselationControlShader = 0;
+    other.tesselationEvaluationShader = 0;
 
     return *this;
 }

@@ -34,12 +34,21 @@ namespace tri::core {
 
         GLuint program;
 
-    private:
-        std::string vsSource{}, fsSource{}, gsSource{};
-        GLuint vertexShader, fragmentShader, geometryShader;
-
-        void readShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& geometryShaderPath="");
+    protected:
+        void readShaders(
+            const std::string& vertexShaderPath="", 
+            const std::string& fragmentShaderPath="",
+            const std::string& geometryShaderPath="", 
+            const std::string& tesselationEvaluationShaderPath="",
+            const std::string& tesselationControlShaderPath="");
         void compileShaders();
+
+
+    private:
+        std::string vsSource{}, fsSource{}, gsSource{}, tcsSource{}, tesSource{};
+        GLuint vertexShader, fragmentShader, geometryShader, tesselationControlShader, tesselationEvaluationShader;
+
+    
         void cleanup();
 
     };

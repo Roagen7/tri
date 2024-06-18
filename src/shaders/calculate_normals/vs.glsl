@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 uniform mat4 transform;
 uniform mat4 projection;
