@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 
 #include <tricore/program/materials/SkyboxMaterial.h>
+#include <tricore/model/meshes/Plane.h>
 #include <algorithm>
 #include <limits>
 #include <boost/range/adaptor/reversed.hpp>
@@ -14,6 +15,12 @@ void Renderer::render(){
     int width, height;
     glfwGetFramebufferSize(&window, &width, &height);
     glViewport(0, 0, width, height);
+    
+    setupFBs(width, height);
+    windowWidth = width;
+    windowHeight = height;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glClearColor(0, 0, 0, 1.0f);
     glStencilMask(0xFF);
@@ -25,12 +32,48 @@ void Renderer::render(){
 
     glDepthFunc(GL_LESS); 
     
-    // blending requirement
+    /*
+    * TODO: shadow mapping
+    */
+    // renderShadows()
+
     renderModels();
     renderModelsWithAlpha();
 
+    postprocess();
+
     glfwSwapBuffers(&window);
     glfwPollEvents();
+}
+
+void Renderer::setupFBs(int width, int height){
+    if(width != windowWidth || height != windowHeight){
+        renderFrame.setup(width, height);
+    }
+
+    renderFrame.bind();
+}
+
+void Renderer::cleanupFBs(){
+
+}
+
+void Renderer::postprocess(){
+    glDisable(GL_DEPTH_TEST);
+    //glClear(GL_COLOR_BUFFER_BIT);
+    renderFrame.unbind();
+
+    postprocessOp->setup(renderFrame);
+    framePlane.draw(camera, *postprocessOp);
+
+    glEnable(GL_DEPTH_TEST);
+    
+
+}
+
+
+Renderer::~Renderer(){
+    cleanupFBs();
 }
 
 Renderer& Renderer::wireframe(){
@@ -38,12 +81,23 @@ Renderer& Renderer::wireframe(){
     return *this;
 }
 
+Renderer& Renderer::culling(){
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);  
+    glFrontFace(GL_CW);
+    return *this;
+}
+
+
 
 void Renderer::setupLights(const Program& material){
     material.uniformVec3("viewDir", camera.getDir());
-    material.uniformVec3("ambientColor", ambientLight->color);
-    material.uniformFloat("ambientIntensity", ambientLight->intensity);
 
+    if(ambientLight){
+        material.uniformVec3("ambientColor", ambientLight->color);
+        material.uniformFloat("ambientIntensity", ambientLight->intensity);
+    }
+    
     material.uniformInt("uNumPointLights", pointLights.size());
     for(auto i = 0u; i < pointLights.size(); i++){
         const auto& light = pointLights[i];

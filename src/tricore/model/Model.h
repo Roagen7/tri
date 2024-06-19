@@ -29,6 +29,9 @@ namespace tri::core {
         Model& setBorder(glm::vec3 color, float thickness);
         Model& removeBorder();
 
+        Model& enableCastShadow();
+        Model& enableReceiveShadow();
+
         bool hasTransparency();
 
         const Program& getMaterial();
@@ -42,19 +45,19 @@ namespace tri::core {
         Model& setMaterial(std::unique_ptr<Program>&& material);
 
         void draw(const Camera& camera);
+        void draw(const Camera&, Program& material);
 
     protected:
         Mesh mesh;
 
     private:
         void drawBorder(const Camera& camera);
-        void draw(const Camera& camera, Program& material);
         void borderPrehook();
         // TODO: change to quaternion
         glm::vec3 rotation{};
         glm::vec3 translation{};
         glm::vec3 scale{1, 1, 1};
-        bool transparency{false};
+        bool transparency{false}, castShadow{false}, receiveShadow{false};
         std::unique_ptr<Program> material{};
 
         struct {

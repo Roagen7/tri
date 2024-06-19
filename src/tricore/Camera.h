@@ -15,7 +15,7 @@ namespace tri::core {
         void poll(GLFWwindow* window);
         glm::vec3 getDir();
         glm::vec3 getPos();
-        glm::mat4 view(float zFar = 100.0f) const;
+        glm::mat4 view(float zFar = 300.0f) const;
 
     private:
         glm::vec3 pos;

@@ -7,35 +7,8 @@
     > outlines
     > skybox
 */
-
-#include <glad/glad.h>
-#include "glfwinclude.h"
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec2.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <stdlib.h>
-#include <stdio.h>
-#include <tricore/Renderer.h>
-#include <tricore/program/Program.h>
-#include <tricore/program/materials/SolidMaterial.h>
-#include <tricore/program/materials/LightMaterial.h>
-#include <tricore/program/materials/SkyboxMaterial.h>
-#include <tricore/program/materials/DebugMaterial.h>
-#include <tricore/model/meshes/Cube.h>
-#include <tricore/model/meshes/Plane.h>
-#include <tricore/model/meshes/Sphere.h>
-
-#include <tricore/model/meshes/VertexCube.h>
-#include <triutil/files.h>
-#include <iostream>
-#include <tricore/model/Mesh.h>
-#include <tricore/Camera.h>
-#include <tricore/model/Model.h>
-#include <triutil/window_init.h>
-#include <tricore/texture/Texture.h>
-#include <tricore/program/materials/TextureMaterial.h>
-#include <tricore/texture/Cubemap.h>
+#include <tricore/tricore.h>
+#include <triutil/triutil.h>
 
 using namespace tri::core;
 using namespace tri::core::materials;
@@ -47,7 +20,7 @@ int main(void){
     static constexpr auto width = 640;
     static constexpr auto height = 480;
 
-    Window window("example", width, height);
+    Window window("scene1", width, height);
             
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     auto model = std::make_shared<Model>();

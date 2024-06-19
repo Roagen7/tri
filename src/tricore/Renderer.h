@@ -10,6 +10,9 @@
 #include "./light/LightSource.h"
 #include "./model/meshes/VertexCube.h"
 #include "./texture/Cubemap.h"
+#include "./frame/Frame.h"
+#include "./model/meshes/Plane.h"
+#include "./frame/BasePostprocess.h"
 
 static constexpr auto MAX_POINT_LIGHTS = 10;
 static constexpr auto MAX_DIR_LIGHTS = 3;
@@ -24,10 +27,16 @@ class Renderer {
             glEnable(GL_DEPTH_CLAMP);
             glEnable(GL_STENCIL_TEST);
             glEnable(GL_BLEND);
+
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
             
+            framePlane.setMesh(meshes::Plane());
+
+            // add setMaterial to default postprocessing (i.e. identity)
             skybox.setMesh(meshes::VertexCube());
             skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
+
+            postprocessOp = std::make_unique<postprocess::BasePostprocess>();
         };
         void render();
         Renderer& add(std::shared_ptr<Model> model);
@@ -41,11 +50,18 @@ class Renderer {
         Renderer& setSkybox(Cubemap&& cubemap);
 
         Renderer& wireframe();
+        Renderer& culling();
+
+        ~Renderer();
     private:
         void renderModels();
         void renderModelsWithAlpha();
         void renderModel(Model* model);
         void setupLights(const Program& material);
+        void postprocess();
+
+        void setupFBs(int width, int height);
+        void cleanupFBs();
 
         GLFWwindow& window;
         Camera& camera;
@@ -59,5 +75,12 @@ class Renderer {
         std::vector<std::shared_ptr<PointLight>> pointLights;
         std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
         std::shared_ptr<AmbientLight> ambientLight;
+
+        int windowWidth{}, windowHeight{};
+
+        Frame renderFrame;
+        Model framePlane;
+
+        std::unique_ptr<postprocess::BasePostprocess> postprocessOp{};
     };
 }
