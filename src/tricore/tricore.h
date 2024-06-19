@@ -14,5 +14,7 @@
 #include <tricore/model/meshes/Sphere.h>
 #include <tricore/model/meshes/Plane.h>
 
+#include <tricore/frame/postprocesses/GrayscalePostprocess.h>
+
 #include <tricore/texture/Texture.h>
 #include <tricore/texture/Cubemap.h>

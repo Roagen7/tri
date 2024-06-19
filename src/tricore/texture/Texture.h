@@ -17,10 +17,12 @@ namespace tri::core {
         void bind() const;
         void unbind() const;
 
+        void cleanup();
+
         ~Texture();
 
     private:
-        GLuint texture;
+        GLuint texture{};
         std::string path;
         int width, height, numChannels;
 

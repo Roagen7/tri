@@ -21,7 +21,7 @@ namespace tri::core::materials {
         ), cubemap(std::move(cubemap)), solidColor{false} {
             glActiveTexture(GL_TEXTURE0);
             cubemap.bind();
-            uniformInt("texture0", 0);
+            uniformInt("skybox", 0);
             uniformInt("solidColor", 0);
             uniformVec3("uColor", {0, 0, 0});
         }
@@ -36,11 +36,12 @@ namespace tri::core::materials {
         }
 
         void use() const override {
+            Program::use();
             if(!solidColor){
                 glActiveTexture(GL_TEXTURE0);
+
                 cubemap.bind();
             }
-            Program::use();
         }
     private:
         Cubemap cubemap;

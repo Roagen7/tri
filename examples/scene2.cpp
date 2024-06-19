@@ -16,24 +16,29 @@ int main(void){
     Window window("example", width, height);
             
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
-    auto model = std::make_shared<Model>();
 
+    auto model = std::make_shared<Model>();
     
      
     auto amb = light::make_ambient({
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
-    Renderer renderer(*window.get(), camera);
-    renderer
-        .setSkybox(Cubemap({
+
+    auto skybox = Cubemap({
             .right = "examples/data/skybox/right.jpg",
             .left = "examples/data/skybox/left.jpg",
             .top = "examples/data/skybox/top.jpg",
             .bottom = "examples/data/skybox/bottom.jpg",
             .front = "examples/data/skybox/front.jpg",
             .back = "examples/data/skybox/back.jpg"
-        }))
+    });
+
+
+
+    Renderer renderer(*window.get(), camera);
+    renderer
+        .setSkybox(std::move(skybox))
         .add([](){
             auto heightmapModel = std::make_shared<HeightmapModel>(std::move(Texture("examples/data/textures/iceland_heightmap.png")), 0.5);
             heightmapModel->setScaleXYZ({100, 100, 100}).setTranslation({0, -4.0, 0.0});

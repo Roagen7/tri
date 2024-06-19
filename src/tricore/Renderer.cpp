@@ -14,13 +14,12 @@ using namespace tri::core::materials;
 void Renderer::render(){
     int width, height;
     glfwGetFramebufferSize(&window, &width, &height);
-    glViewport(0, 0, width, height);
     
     setupFBs(width, height);
+    glViewport(0, 0, width, height);
+
     windowWidth = width;
     windowHeight = height;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     glClearColor(0, 0, 0, 1.0f);
     glStencilMask(0xFF);
@@ -31,11 +30,11 @@ void Renderer::render(){
     skybox.draw(camera);
 
     glDepthFunc(GL_LESS); 
-    
-    /*
-    * TODO: shadow mapping
-    */
-    // renderShadows()
+
+    // /*
+    // * TODO: shadow mapping
+    // */
+    // // renderShadows()
 
     renderModels();
     renderModelsWithAlpha();
@@ -49,31 +48,24 @@ void Renderer::render(){
 void Renderer::setupFBs(int width, int height){
     if(width != windowWidth || height != windowHeight){
         renderFrame.setup(width, height);
+        postprocessOp->setup(renderFrame);
     }
 
     renderFrame.bind();
 }
 
-void Renderer::cleanupFBs(){
-
-}
 
 void Renderer::postprocess(){
-    glDisable(GL_DEPTH_TEST);
-    //glClear(GL_COLOR_BUFFER_BIT);
     renderFrame.unbind();
-
-    postprocessOp->setup(renderFrame);
+    glDisable(GL_DEPTH_TEST);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT);
     framePlane.draw(camera, *postprocessOp);
-
     glEnable(GL_DEPTH_TEST);
-    
-
 }
 
 
 Renderer::~Renderer(){
-    cleanupFBs();
 }
 
 Renderer& Renderer::wireframe(){

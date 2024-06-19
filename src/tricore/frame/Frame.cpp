@@ -1,8 +1,11 @@
 #include "Frame.h"
 
+#include <cassert>
+
 using namespace tri::core;
 
 void Frame::setup(int width, int height){
+    cleanup();
     glGenFramebuffers(1, &fbo);
     glGenTextures(1, &color);
     glGenRenderbuffers(1, &rbo);
@@ -23,17 +26,23 @@ GLuint Frame::getTexture(){
 }
 
 
-Frame::~Frame(){
+void Frame::cleanup(){
     glDeleteRenderbuffers(1, &rbo);
     glDeleteTextures(1, &color);
     glDeleteRenderbuffers(1, &rbo);
 }
 
-void Frame::bind(){
 
+Frame::~Frame(){
+   cleanup();
+}
+
+void Frame::bind(){
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 }
 
 void Frame::unbind(){
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

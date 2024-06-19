@@ -27,6 +27,10 @@ int main(void){
     auto model2 = std::make_shared<Model>();
     auto model3 = std::make_shared<Model>();
 
+
+
+    model2->setMesh(Plane());
+    model3->setMesh(VertexCube());
     Cubemap cubemap({
         .right = "examples/data/skybox/space/right.png",
         .left = "examples/data/skybox/space/left.png",
@@ -35,11 +39,6 @@ int main(void){
         .front = "examples/data/skybox/space/front.png",
         .back = "examples/data/skybox/space/back.png"
     });
-
-    //model->setMesh(Mesh::fromFile("examples/mesh/textured_with_normals.obj"));
-    model2->setMesh(Plane());
-    model3->setMesh(VertexCube());
-
     model->setMesh(Sphere())
     .setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
@@ -48,13 +47,13 @@ int main(void){
         .build()
     );
 
-    model2->setMaterial(TextureMaterialBuilder()
-        .setShininess(1024)
-        .setTexture(std::move(Texture("examples/data/textures/bricks.jpg")))
-        .setNormalMap(std::move(Texture("examples/data/textures/bricks_normal.jpg")))
-        .setHeightMap(std::move(Texture("examples/data/textures/bricks_heightmap.jpg")), 0.05f)
-        .build()
-    ).setBorder({0, 1, 0}, 0.10);
+    TextureMaterialBuilder builder; 
+
+    model2->setMaterial(TextureMaterialBuilder().setShininess(1024)
+        .setTexture(Texture("examples/data/textures/bricks.jpg"))
+        .setHeightMap(Texture("examples/data/textures/bricks_heightmap.jpg"), 0.05f)
+        .setNormalMap(Texture("examples/data/textures/bricks_normal.jpg")).build());
+    //.setBorder({0, 1, 0}, 0.10);
 
     model3->setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
@@ -67,9 +66,24 @@ int main(void){
         .intensity = 0.1,
         .color = {1.f, 1.f, 1.f}
     });
+
+
+
+
     Renderer renderer(*window.get(), camera);
+
+
+
     renderer
         .setSkybox(std::move(cubemap))
+        // .setSkybox(std::move(Cubemap({
+        //     .right = "examples/data/skybox/space/right.png",
+        //     .left = "examples/data/skybox/space/left.png",
+        //     .top = "examples/data/skybox/space/top.png",
+        //     .bottom = "examples/data/skybox/space/bottom.png",
+        //     .front = "examples/data/skybox/space/front.png",
+        //     .back = "examples/data/skybox/space/back.png"
+        // })))
         .add(model)
         .add([](){
             auto lightModel = std::make_shared<Model>();

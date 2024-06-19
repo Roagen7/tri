@@ -17,6 +17,7 @@ Cubemap::Cubemap(CubemapLayout layout): Cubemap(std::vector({
 
 void Cubemap::loadCubemap(const std::vector<std::string>& imagePaths) {
     glGenTextures(1, &cubemap);
+    std::cout << cubemap << std::endl;
     bind();
 
     int width, height, nrChannels;
@@ -28,7 +29,6 @@ void Cubemap::loadCubemap(const std::vector<std::string>& imagePaths) {
         assert(nrChannels >= 3);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
                          0, channelMap[nrChannels], width, height, 0, channelMap[nrChannels], GL_UNSIGNED_BYTE, data);
-        
         stbi_image_free(data);
         i++;
     }
@@ -38,6 +38,7 @@ void Cubemap::loadCubemap(const std::vector<std::string>& imagePaths) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    unbind();
 }
 
 Cubemap::Cubemap(const std::vector<std::string>& imagePaths) : paths(imagePaths){

@@ -8,6 +8,7 @@
 using namespace tri::core;
 
 void Texture::loadTexture(const std::string& path){
+    glBindTexture(GL_TEXTURE_2D, 0);
     glGenTextures(1, &texture);
     bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
@@ -39,8 +40,13 @@ void Texture::unbind() const{
 }
 
 Texture::~Texture(){
+    cleanup();
+}
+
+void Texture::cleanup(){
     glDeleteTextures(1, &texture);
 }
+
 
 Texture::Texture(const Texture& other): width(other.width), height(other.height), path(other.path) {
     loadTexture(other.path);
@@ -55,15 +61,16 @@ Texture& Texture::operator=(const Texture& other) {
     path = other.path;
     loadTexture(other.path);
     return *this;
-
 }
 
 Texture::Texture(Texture&& other) noexcept 
     : texture(other.texture), width(other.width), height(other.height), numChannels(other.numChannels), path(other.path) {
+        
     other.texture = 0;
     other.width = 0;
     other.height = 0;
     other.numChannels = 0;
+    other.path = "";
 }
 
 Texture& Texture::operator=(Texture&& other) noexcept {
@@ -73,9 +80,11 @@ Texture& Texture::operator=(Texture&& other) noexcept {
     height = other.height;
     numChannels = other.numChannels;
     path = other.path;
+
     other.texture = 0;
     other.width = 0;
     other.height = 0;
     other.numChannels = 0;
+    other.path = "";
     return *this;
 }

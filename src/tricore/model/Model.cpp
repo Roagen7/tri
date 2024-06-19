@@ -99,8 +99,8 @@ void Model::draw(const Camera& camera, Program& material){
 }
 
 Model& Model::setBorder(glm::vec3 color, float thickness){
-    border.material = std::make_unique<LightMaterial>(color);
-    border.thickness = thickness;
+    // border.material = std::make_unique<LightMaterial>(color);
+    // border.thickness = thickness;
     return *this;
 }
 

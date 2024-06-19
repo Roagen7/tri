@@ -52,6 +52,13 @@ class Renderer {
         Renderer& wireframe();
         Renderer& culling();
 
+        template<typename T, typename... A>
+        Renderer& setPostprocessing(A&&... args){
+            postprocessOp = std::make_unique<T>(std::forward<A>(args)...);
+            return *this;
+        }
+
+
         ~Renderer();
     private:
         void renderModels();
@@ -61,7 +68,6 @@ class Renderer {
         void postprocess();
 
         void setupFBs(int width, int height);
-        void cleanupFBs();
 
         GLFWwindow& window;
         Camera& camera;

@@ -35,6 +35,7 @@ int main(){
         .setScaleXYZ({0.3, 0.3, 0.3});
 
     renderer
+        .setPostprocessing<postprocess::GrayscalePostprocess>()
         .setSkybox(Cubemap({
             .right = "examples/data/skybox/space/right.png",
             .left = "examples/data/skybox/space/left.png",

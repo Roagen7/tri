@@ -14,6 +14,7 @@ namespace tri::core {
 
         ~Frame();
     private:
+        void cleanup();
         GLuint fbo, rbo, color;
 
     };
