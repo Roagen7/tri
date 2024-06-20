@@ -18,21 +18,26 @@ namespace tri::core::postprocess {
         BasePostprocess(): BasePostprocess(fmt::format("{}/{}/{}/fs.glsl", SHADER_PATH, POSTPROCESS, IDENTITY)){}
 
         void setup(Frame& frame){
-            texture = frame.getTexture();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture);	
-            uniformInt("screenTexture", 0);
+            colorAttachments = frame.getColorAttachments();
+            colorAttachmentsCount = frame.getColorAttachmentsCount();
+            for(auto i = 0u; i < colorAttachmentsCount; i++){
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, colorAttachments[i]);	
+                uniformInt(fmt::format("colorAttachment{}", i), i);
+            }
         }
 
         virtual void use() const {
             Program::use();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture);	
+            for(auto i = 0u; i < colorAttachmentsCount; i++){
+                glActiveTexture(GL_TEXTURE0 + i);
+                glBindTexture(GL_TEXTURE_2D, colorAttachments[i]);	
+            }
         }
 
     private:
-        GLuint texture;
-
+        GLuint* colorAttachments;
+        GLuint colorAttachmentsCount{};
     };
 }
 

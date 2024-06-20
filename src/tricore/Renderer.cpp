@@ -16,29 +16,20 @@ void Renderer::render(){
     glfwGetFramebufferSize(&window, &width, &height);
     
     setupFBs(width, height);
-    glViewport(0, 0, width, height);
-
     windowWidth = width;
     windowHeight = height;
 
-    glClearColor(0, 0, 0, 1.0f);
-    glStencilMask(0xFF);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-    glDepthFunc(GL_LEQUAL);
-    skybox.draw(camera);
-
-    glDepthFunc(GL_LESS); 
+    glViewport(0, 0, width, height);
 
     // /*
     // * TODO: shadow mapping
     // */
     // // renderShadows()
 
-    renderModels();
-    renderModelsWithAlpha();
+    renderToFrame(bloomUtils.bloomFrame0);
 
+
+    addBloom();
     postprocess();
 
     glfwSwapBuffers(&window);
@@ -47,21 +38,52 @@ void Renderer::render(){
 
 void Renderer::setupFBs(int width, int height){
     if(width != windowWidth || height != windowHeight){
-        renderFrame.setup(width, height);
-        postprocessOp->setup(renderFrame);
-    }
+        postprocessFrame.setup(width, height);
+        
+        bloomUtils.bloomFrame0.setup(width, height);
+        bloomUtils.bloomFrame1.setup(width, height);
 
-    renderFrame.bind();
+        postprocessOp->setup(postprocessFrame);
+        bloomUtils.bloom0.setup(bloomUtils.bloomFrame0);
+        bloomUtils.bloom1.setup(bloomUtils.bloomFrame1);
+    }
+    
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+    bloomUtils.bloomFrame0.bind();
+    glDrawBuffers(2, attachments);
+
+    bloomUtils.bloomFrame1.bind();
+    glDrawBuffers(2, attachments);
 }
 
 
 void Renderer::postprocess(){
-    renderFrame.unbind();
+    copyToFrame(nullptr, *postprocessOp);
+}
+
+void Renderer::addBloom(){
+    for(auto i = 0u; i < bloomUtils.bloomPasses/2; i++){
+        copyToFrame(&bloomUtils.bloomFrame1, bloomUtils.bloom0);
+        copyToFrame(&bloomUtils.bloomFrame0, bloomUtils.bloom1);
+    }
+    copyToFrame(&postprocessFrame, bloomUtils.bloom0);
+}
+
+void Renderer::copyToFrame(Frame* frame, postprocess::BasePostprocess& op){
+    if(frame){
+        frame->bind();
+    }
+
     glDisable(GL_DEPTH_TEST);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);
-    framePlane.draw(camera, *postprocessOp);
+    framePlane.draw(camera, op);
     glEnable(GL_DEPTH_TEST);
+
+    if(frame){
+        frame->unbind();
+    }
 }
 
 
@@ -80,6 +102,40 @@ Renderer& Renderer::culling(){
     return *this;
 }
 
+void Renderer::renderToFrame(Frame& frame){
+    frame.bind();
+    glClearColor(0, 0, 0, 1.0f);
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    glDepthFunc(GL_LEQUAL);
+    skybox.draw(camera);
+
+    glDepthFunc(GL_LESS); 
+
+    renderModels();
+    renderModelsWithAlpha();
+    frame.unbind();
+}
+
+
+Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1){
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_CLAMP);
+    glEnable(GL_STENCIL_TEST);
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    
+    framePlane.setMesh(meshes::Plane());
+
+    skybox.setMesh(meshes::VertexCube());
+    skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
+
+    // add setMaterial to default postprocessing (i.e. identity)
+    postprocessOp = std::make_unique<postprocess::BasePostprocess>();
+};
 
 
 void Renderer::setupLights(const Program& material){
@@ -121,7 +177,6 @@ void Renderer::renderModels(){
         renderModel(model.get());
     }
 }
- 
 
 void Renderer::renderModelsWithAlpha(){
     auto pos = camera.getPos();

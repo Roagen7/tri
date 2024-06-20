@@ -15,6 +15,7 @@
 #include <tricore/model/meshes/Plane.h>
 
 #include <tricore/frame/postprocesses/GrayscalePostprocess.h>
+#include <tricore/frame/postprocesses/InvertPostprocess.h>
 
 #include <tricore/texture/Texture.h>
 #include <tricore/texture/Cubemap.h>

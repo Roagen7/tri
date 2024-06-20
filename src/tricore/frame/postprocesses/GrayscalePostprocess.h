@@ -11,7 +11,7 @@ namespace tri::core::postprocess {
     
     class GrayscalePostprocess : public BasePostprocess {
     public:
-        GrayscalePostprocess() : BasePostprocess(fmt::format("{}/{}/{}/fs.glsl", SHADER_PATH, POSTPROCESS, GRAYSCALE)){}
+        GrayscalePostprocess() : BasePostprocess(fmt::format("{}/{}/{}.glsl", SHADER_PATH, POSTPROCESS, GRAYSCALE)){}
 
     };
 }

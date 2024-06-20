@@ -67,23 +67,10 @@ int main(void){
         .color = {1.f, 1.f, 1.f}
     });
 
-
-
-
     Renderer renderer(*window.get(), camera);
-
-
-
     renderer
+        .setPostprocessing<postprocess::GrayscalePostprocess>()
         .setSkybox(std::move(cubemap))
-        // .setSkybox(std::move(Cubemap({
-        //     .right = "examples/data/skybox/space/right.png",
-        //     .left = "examples/data/skybox/space/left.png",
-        //     .top = "examples/data/skybox/space/top.png",
-        //     .bottom = "examples/data/skybox/space/bottom.png",
-        //     .front = "examples/data/skybox/space/front.png",
-        //     .back = "examples/data/skybox/space/back.png"
-        // })))
         .add(model)
         .add([](){
             auto lightModel = std::make_shared<Model>();

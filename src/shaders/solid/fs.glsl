@@ -41,10 +41,14 @@ in vec2 texPos;
 in vec3 tangent;
 in mat3 TBN;
 
+out vec4 FragColor;
+out vec4 BrightColor;
+
 void main()
 {   
     if(flatColor == 1){
-        gl_FragColor = vec4(col, 1.0);
+        FragColor = vec4(col, 1.0);
+        BrightColor = vec4(0,0,0,1);
         return ;
     }
     vec3 outColor = vec3(0.0, 0.0, 0.0);
@@ -95,5 +99,12 @@ void main()
         alpha = texture(texture0, texCoords_val).a;
         // discard;
     }
-    gl_FragColor = vec4(outColor, alpha);
+    FragColor = vec4(outColor, alpha);
+
+    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 0.8){
+        BrightColor = vec4(FragColor.rgb,0);
+    } else {
+        BrightColor = vec4(0, 0, 0,alpha);
+    }
 }

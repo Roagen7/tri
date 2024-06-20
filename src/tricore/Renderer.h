@@ -13,6 +13,7 @@
 #include "./frame/Frame.h"
 #include "./model/meshes/Plane.h"
 #include "./frame/BasePostprocess.h"
+#include "./frame/postprocesses/BloomPostprocess.h"
 
 static constexpr auto MAX_POINT_LIGHTS = 10;
 static constexpr auto MAX_DIR_LIGHTS = 3;
@@ -22,22 +23,7 @@ namespace tri::core {
 
 class Renderer {
     public:
-        Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera) {
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_DEPTH_CLAMP);
-            glEnable(GL_STENCIL_TEST);
-            glEnable(GL_BLEND);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-            
-            framePlane.setMesh(meshes::Plane());
-
-            // add setMaterial to default postprocessing (i.e. identity)
-            skybox.setMesh(meshes::VertexCube());
-            skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
-
-            postprocessOp = std::make_unique<postprocess::BasePostprocess>();
-        };
+        Renderer(GLFWwindow& window, Camera& camera);
         void render();
         Renderer& add(std::shared_ptr<Model> model);
 
@@ -61,11 +47,16 @@ class Renderer {
 
         ~Renderer();
     private:
+        void renderToFrame(Frame& frame);
+        void copyToFrame(Frame* frame, postprocess::BasePostprocess& op);
+
         void renderModels();
         void renderModelsWithAlpha();
         void renderModel(Model* model);
         void setupLights(const Program& material);
+
         void postprocess();
+        void addBloom();
 
         void setupFBs(int width, int height);
 
@@ -84,9 +75,17 @@ class Renderer {
 
         int windowWidth{}, windowHeight{};
 
-        Frame renderFrame;
+        Frame postprocessFrame;
         Model framePlane;
 
         std::unique_ptr<postprocess::BasePostprocess> postprocessOp{};
+
+        struct {
+            Frame bloomFrame0 = Frame(2);
+            Frame bloomFrame1 = Frame(2);
+            postprocess::VerticalBlurPostprocess bloom0;
+            postprocess::HorizontalBlurPostprocess bloom1;
+            unsigned int bloomPasses{10};
+        } bloomUtils;
     };
 }

@@ -1,8 +1,6 @@
 /*
 small TODO list:
-> add postprocessing operation
 > add shadows
-> add bloom
 > add sprites
 > add cel shader material
 ...
