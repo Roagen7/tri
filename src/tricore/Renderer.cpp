@@ -11,6 +11,16 @@
 using namespace tri::core;
 using namespace tri::core::materials;
 
+
+static constexpr auto DEPTH = "depth";
+
+class ShadowProgram : public Program {
+    public:
+        ShadowProgram() : Program(
+            fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
+            fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
+};
+
 void Renderer::render(){
     int width, height;
     glfwGetFramebufferSize(&window, &width, &height);
@@ -19,15 +29,12 @@ void Renderer::render(){
     windowWidth = width;
     windowHeight = height;
 
+    glViewport(0, 0, 1024, 1024);
+    populateShadowmaps();
+
     glViewport(0, 0, width, height);
 
-    // /*
-    // * TODO: shadow mapping
-    // */
-    // // renderShadows()
-
     renderToFrame(bloomUtils.bloomFrame0);
-
 
     addBloom();
     postprocess();
@@ -36,14 +43,19 @@ void Renderer::render(){
     glfwPollEvents();
 }
 
+
+
+
 void Renderer::setupFBs(int width, int height){
     if(width != windowWidth || height != windowHeight){
+        pointLightFrame.setup(width, height);
+        
         postprocessFrame.setup(width, height);
         
         bloomUtils.bloomFrame0.setup(width, height);
         bloomUtils.bloomFrame1.setup(width, height);
 
-        postprocessOp->setup(postprocessFrame);
+        postprocessOp->setup(postprocessFrame); // remember to change it
         bloomUtils.bloom0.setup(bloomUtils.bloomFrame0);
         bloomUtils.bloom1.setup(bloomUtils.bloomFrame1);
     }
@@ -55,6 +67,8 @@ void Renderer::setupFBs(int width, int height){
 
     bloomUtils.bloomFrame1.bind();
     glDrawBuffers(2, attachments);
+
+    bloomUtils.bloomFrame1.unbind();
 }
 
 
@@ -112,15 +126,30 @@ void Renderer::renderToFrame(Frame& frame){
     glDepthFunc(GL_LEQUAL);
     skybox.draw(camera);
 
-    glDepthFunc(GL_LESS); 
-
     renderModels();
     renderModelsWithAlpha();
     frame.unbind();
 }
 
+void Renderer::populateShadowmaps(){
+    pointLightFrame.bind();
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glDepthFunc(GL_LESS);
+    
+    // TODO: transparency might not work
+    auto projection = light::get_lightspace_matrix(*directionalLights[0]);
 
-Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1){
+    for(const auto& model : this->models){
+        if(!model->castsShadow()) continue;
+        model->draw(projection, *shadowProgram);
+    }
+
+    pointLightFrame.unbind();
+}
+
+
+Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1, false), pointLightFrame(1, true){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);
     glEnable(GL_STENCIL_TEST);
@@ -135,6 +164,8 @@ Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(c
 
     // add setMaterial to default postprocessing (i.e. identity)
     postprocessOp = std::make_unique<postprocess::BasePostprocess>();
+    shadowProgram = std::make_unique<ShadowProgram>();
+
 };
 
 
@@ -167,9 +198,26 @@ void Renderer::setupLights(const Program& material){
         material.uniformVec3(fmt::format("{}.direction", prefix), light->direction);
         material.uniformFloat(fmt::format("{}.intensity", prefix), light->intensity);
     }
+
+    /* add shadow depth maps to material as some far texture units*/
+
+    auto depth = pointLightFrame.getDepthMap();
+    
+    // 10 -- 12 -> shadow maps
+    
+    static constexpr auto directionalShadowMapBegin = 10;
+    material.use();
+
+    glActiveTexture(GL_TEXTURE0 + directionalShadowMapBegin);
+    glBindTexture(GL_TEXTURE_2D, pointLightFrame.getDepthMap());
+    material.uniformInt("shadowMap", directionalShadowMapBegin /* + i*/);
+    material.uniformMat4("shadowSpaceMatrix", light::get_lightspace_matrix(*directionalLights[0].get()));
+    // material.uniformInt()
 }
 
 void Renderer::renderModels(){
+    glDepthFunc(GL_LESS); 
+
     for(const auto& model : this->models){
         if(model->hasTransparency()){
             continue;
@@ -179,6 +227,8 @@ void Renderer::renderModels(){
 }
 
 void Renderer::renderModelsWithAlpha(){
+    glDepthFunc(GL_LESS); 
+
     auto pos = camera.getPos();
     std::map<float, Model*> sorted;
 

@@ -20,6 +20,7 @@ namespace tri::core::postprocess {
         void setup(Frame& frame){
             colorAttachments = frame.getColorAttachments();
             colorAttachmentsCount = frame.getColorAttachmentsCount();
+            depthAttachment = frame.getDepthMap();
             for(auto i = 0u; i < colorAttachmentsCount; i++){
                 glActiveTexture(GL_TEXTURE0 + i);
                 glBindTexture(GL_TEXTURE_2D, colorAttachments[i]);	
@@ -38,6 +39,8 @@ namespace tri::core::postprocess {
     private:
         GLuint* colorAttachments;
         GLuint colorAttachmentsCount{};
+
+        GLuint depthAttachment;
     };
 }
 

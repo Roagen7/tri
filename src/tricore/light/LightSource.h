@@ -1,7 +1,9 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 #include <memory>
-
+#include <config.h>
 
 
 namespace tri::core {
@@ -49,6 +51,31 @@ namespace tri::core {
             ptr->color = dir.color;
             ptr->intensity = dir.intensity;
             return ptr;
+        }
+
+        inline glm::mat4x4 get_lightspace_matrix(PointLight point){
+            auto shadowWidth = config::SHADOW_RESOLUTION.w;
+            auto shadowHeight = config::SHADOW_RESOLUTION.h;
+            return glm::perspective(glm::radians(45.0f), 
+            (GLfloat)shadowWidth / (GLfloat)shadowHeight, 
+            config::CAMERA_NEAR_PLANE, 
+            config::CAMERA_FAR_PLANE);
+        }
+
+        inline glm::mat4x4 get_lightspace_matrix(DirectionalLight dir){
+            static constexpr auto lightScale = 5.f;
+
+            auto shadowWidth = config::SHADOW_RESOLUTION.w;
+            auto shadowHeight = config::SHADOW_RESOLUTION.h;
+            auto lightProjection = glm::perspective(glm::radians(45.0f), 
+            (GLfloat)shadowWidth / (GLfloat)shadowHeight, 
+            config::CAMERA_NEAR_PLANE, 
+            config::CAMERA_FAR_PLANE);
+
+            // TODO: make dependent on camera pos
+            lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, -30.0f, 30.f);
+            auto lightView = glm::lookAt(-dir.direction * lightScale, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));   
+            return lightProjection * lightView;
         }
     }
 }

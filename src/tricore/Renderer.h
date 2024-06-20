@@ -49,6 +49,7 @@ class Renderer {
     private:
         void renderToFrame(Frame& frame);
         void copyToFrame(Frame* frame, postprocess::BasePostprocess& op);
+        void populateShadowmaps();
 
         void renderModels();
         void renderModelsWithAlpha();
@@ -69,6 +70,8 @@ class Renderer {
         Model skybox;
         glm::vec3 bgColor{};
 
+        Frame pointLightFrame;
+        std::unique_ptr<Program> shadowProgram;
         std::vector<std::shared_ptr<PointLight>> pointLights;
         std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
         std::shared_ptr<AmbientLight> ambientLight;
@@ -81,8 +84,8 @@ class Renderer {
         std::unique_ptr<postprocess::BasePostprocess> postprocessOp{};
 
         struct {
-            Frame bloomFrame0 = Frame(2);
-            Frame bloomFrame1 = Frame(2);
+            Frame bloomFrame0 = Frame(2, false);
+            Frame bloomFrame1 = Frame(2, false);
             postprocess::VerticalBlurPostprocess bloom0;
             postprocess::HorizontalBlurPostprocess bloom1;
             unsigned int bloomPasses{10};

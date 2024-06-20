@@ -5,7 +5,7 @@
 namespace tri::core {
     class Frame {
     public:
-        Frame(GLuint colorAttachmentsCount): colorAttachmentsCount(colorAttachmentsCount) {
+        Frame(GLuint colorAttachmentsCount, bool depthAttachment): colorAttachmentsCount(colorAttachmentsCount), depthAttachment{depthAttachment} {
             color = std::unique_ptr<GLuint>(new GLuint[colorAttachmentsCount]);
         }
 
@@ -16,12 +16,16 @@ namespace tri::core {
         GLuint* getColorAttachments();
         GLuint getColorAttachmentsCount();
 
+        GLuint getDepthMap();
+
         ~Frame();
     private:
         void cleanup();
         GLuint fbo, rbo; 
         std::unique_ptr<GLuint> color{};
+        GLuint depth;
         GLuint colorAttachmentsCount{};
+        bool depthAttachment;
 
     };
 }

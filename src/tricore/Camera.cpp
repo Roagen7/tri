@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "config.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/matrix_transform.hpp>
@@ -8,8 +9,8 @@
 
 using namespace tri::core;
 
-glm::mat4 Camera::view(float zFar) const{
-    return glm::perspective(glm::radians(90.0f), w/h, 0.1f, zFar) * glm::lookAt(pos, pos + dir, UP);
+glm::mat4 Camera::view() const{
+    return glm::perspective(glm::radians(90.0f), w/h, config::CAMERA_NEAR_PLANE, config::CAMERA_FAR_PLANE) * glm::lookAt(pos, pos + dir, UP);
 }
 
 glm::vec3 Camera::getDir(){

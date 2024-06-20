@@ -24,13 +24,15 @@ namespace tri::core {
         glm::vec3 getWorldPosition() const;
 
         Model& enableTransparency();
-
+        
         Model& setMesh(const Mesh& mesh);
         Model& setBorder(glm::vec3 color, float thickness);
         Model& removeBorder();
 
         Model& enableCastShadow();
         Model& enableReceiveShadow();
+
+        bool castsShadow();
 
         bool hasTransparency();
 
@@ -46,11 +48,13 @@ namespace tri::core {
 
         void draw(const Camera& camera);
         void draw(const Camera&, Program& material);
+        void draw(glm::mat4 projection, Program& material);
 
     protected:
         Mesh mesh;
 
     private:
+    
         void drawBorder(const Camera& camera);
         void borderPrehook();
         // TODO: change to quaternion

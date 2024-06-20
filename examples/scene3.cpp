@@ -34,6 +34,12 @@ int main(){
         .setTranslation({0, 4.0, -4.0})
         .setScaleXYZ({0.3, 0.3, 0.3});
 
+    auto dirLight = light::make_dir({
+            .direction = {-1, -1, 0},
+            .color = {1, 1, 1},
+            .intensity = 1
+    });
+
     renderer
         // .setPostprocessing<postprocess::InvertPostprocess>()
         .setSkybox(Cubemap({
@@ -48,24 +54,30 @@ int main(){
             auto cubeModel = std::make_shared<Model>();
             cubeModel->setMesh(VertexCube())
             .setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 0.0})
-            .setTranslation({-7, -0.5, -10});
+            .setTranslation({2, 0.5, 1})
+            .enableCastShadow()
+            .enableReceiveShadow()
+            ;
             return cubeModel;
         }())
         .add([](){
             auto capsule = std::make_shared<Model>();
             capsule->setMesh(Mesh::fromFile("examples/data/mesh/textured_with_normals.obj"))
             .setMaterial<SolidMaterial>(glm::vec3{0.0, 0.0, 1.0}, 1.0, 0.3, 1.0)
-            .setTranslation({-5, -0.5, -5});
+            .setTranslation({0.0f, 1.5f, 0.0})
+            .enableCastShadow()
+            .enableReceiveShadow()
+            ;
             return capsule;
         }())
-        .add([](){
-            auto lightModel = std::make_shared<Model>();
-            lightModel->setMesh(Sphere())
-            .setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0})
-            .setTranslation(secondLightPos)
-            .setScaleXYZ({0.3, 0.3, 0.3});
-            return lightModel;
-        }())
+        // .add([](){
+        //     auto lightModel = std::make_shared<Model>();
+        //     lightModel->setMesh(Cube())
+        //     .setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0})
+        //     .setTranslation(secondLightPos)
+        //     .setScaleXYZ({0.3, 0.3, 0.3});
+        //     return lightModel;
+        // }())
         .add(lightModel)
         .add([](){
             auto floor = std::make_shared<Model>();
@@ -76,19 +88,23 @@ int main(){
                     .setNormalMap(std::move(Texture("examples/data/textures/brickwall_normal.jpg")))
                     .build()
                 ).setScaleXYZ({20, 20, 20})
-                .setTranslation({-5, -2, -10});
+                .setTranslation({0, 0, 0})
+                .enableCastShadow()
+                .enableReceiveShadow()
+                ;
             return floor;
         }())
         .addLightSource(light)
-        .addLightSource(light::make_point({
-            .pos = secondLightPos,
-            .color = {1, 1, 1},
-            .attentuation = {
-                .constant = 1.0,
-                .linear = 0.1,
-                .quadratic = 0.0
-            }
-        }));
+        // .addLightSource(light::make_point({
+        //     .pos = secondLightPos,
+        //     .color = {1, 1, 1},
+        //     .attentuation = {
+        //         .constant = 1.0,
+        //         .linear = 0.1,
+        //         .quadratic = 0.0
+        //     }
+        // }))
+        .addLightSource(dirLight);
 
     static constexpr auto R = 5.0;
     while (!glfwWindowShouldClose(window.get()))
@@ -97,6 +113,7 @@ int main(){
         camera.poll(window.get());
         auto theta = glfwGetTime();
         glm::vec3 pos = glm::vec3{R * sin(theta), 3.0,  R * cos(theta)};
+        dirLight->direction = glm::vec3({sin(theta), -1.0, cos(theta)});
         light->pos = pos;
         lightModel->setTranslation(pos);
     }

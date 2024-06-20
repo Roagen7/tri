@@ -2,6 +2,7 @@ uniform mat4 rotation;
 uniform mat4 transform;
 uniform mat4 projection;
 uniform vec3 uColor;
+uniform mat4 shadowSpaceMatrix;
 
 in vec3 vPos;
 in vec3 vNormal;
@@ -15,6 +16,7 @@ out vec2 texPos;
 out vec3 tangent;
 out mat3 TBN;
 out vec4 ogPos;
+out vec4 shadowSpacePos;
 
 void main(){
     ogPos = vec4(vPos, 1.0);
@@ -30,6 +32,8 @@ void main(){
     vec3 T = normalize(vec3(rotation * vec4(vTangent,   0.0)));
     vec3 B = normalize(vec3(rotation * vec4(cross(vTangent, vNormal), 0.0)));
     vec3 N = normalize(normal);
+
+    shadowSpacePos = shadowSpaceMatrix * transform * rotation * ogPos;
 
     TBN = mat3(T, B, N);
 }

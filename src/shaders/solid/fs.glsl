@@ -18,6 +18,10 @@ uniform int hasHeightMap;
 uniform sampler2D heightMap;
 uniform float height_scale;
 
+
+uniform int hasShadow;
+uniform sampler2D shadowMap;
+
 // ------ textures end ----
 
 uniform int uNumPointLights;
@@ -40,9 +44,33 @@ in vec4 worldPos;
 in vec2 texPos;
 in vec3 tangent;
 in mat3 TBN;
+in vec4 ogPos;
+in vec4 shadowSpacePos;
+
 
 out vec4 FragColor;
 out vec4 BrightColor;
+
+float shadowCalculation(vec4 sPos, sampler2D shadow){
+    vec3 projCoords = sPos.xyz / sPos.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadow, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+
+    float bias = 0.005;
+    float sha = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadow, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+    for(int y = -1; y <= 1; ++y)
+    {
+        float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+        sha += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+    }    
+    }
+    sha /= 9.0;
+    return sha;
+}   
 
 void main()
 {   
@@ -78,7 +106,11 @@ void main()
     for(int i = 0; i < uNumDirLights; i++){
         outColor +=  calcDirLight(uDirectionalLights[i], normal_val, viewDir, uShininess, specular_val, uDiffuse);
     }
-
+    
+    if(hasShadow == 1){
+        outColor -= outColor * shadowCalculation(shadowSpacePos, shadowMap);
+    }
+    
     if (hasTexture == 1){
         outColor *= texture(texture0, texCoords_val).xyz;
     } else {
@@ -107,4 +139,8 @@ void main()
     } else {
         BrightColor = vec4(0, 0, 0,alpha);
     }
+
+
+    //FragColor = texture(shadowMap, texPos);
+    //FragColor = vec4(shad, shad, shad, 1.0);
 }
