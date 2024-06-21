@@ -4,6 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include <memory>
 #include <config.h>
+#include <array>
 
 
 namespace tri::core {
@@ -53,13 +54,21 @@ namespace tri::core {
             return ptr;
         }
 
-        inline glm::mat4x4 get_lightspace_matrix(PointLight point){
+        inline std::array<glm::mat4x4, 6> get_lightspace_matrices(PointLight point){
+            float near = 1.f;
+            float far = 25.f;
             auto shadowWidth = config::SHADOW_RESOLUTION.w;
             auto shadowHeight = config::SHADOW_RESOLUTION.h;
-            return glm::perspective(glm::radians(45.0f), 
-            (GLfloat)shadowWidth / (GLfloat)shadowHeight, 
-            config::CAMERA_NEAR_PLANE, 
-            config::CAMERA_FAR_PLANE);
+            auto perspective = glm::perspective(glm::radians(45.0f), (GLfloat)shadowWidth / (GLfloat)shadowHeight, near, far);
+
+            return {
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, 0.f}, {0.f, -1.f, 0.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{-1.f, 0.f, 0.f}, {0.f, -1.f, 0.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{0.f, 1.f, 0.f}, {0.f, 0.f, 1.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, -1.f, 0.f}, {0.f, -1.f, -1.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, 1.f}, {0.f, -1.f, 0.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, -1.f}, {0.f, -1.f, 0.f})
+            };
         }
 
 
@@ -79,72 +88,52 @@ namespace tri::core {
                 return frustumCorners;
         }
 
-        inline glm::mat4x4 get_lightspace_matrix(DirectionalLight dir, Camera& camera){
-            // float farPlane = config::CAMERA_FAR_PLANE;
-            // float nearPlane = config::CAMERA_NEAR_PLANE;
-            // const auto corners = getFrustumCornersWorldSpace(camera.view());
+        inline glm::mat4x4 get_lightspace_matrix(DirectionalLight dir, Camera& camera, float nearPlane=0.1, float farPlane=25.0){
+            auto pv = glm::perspective(glm::radians(camera.getFov()), 
+            camera.getAspectRatio(), nearPlane, farPlane) * glm::lookAt(camera.getPos(), camera.getPos() + camera.getDir(), UP);
 
-            // glm::vec3 center = glm::vec3(0, 0, 0);
-            // for (const auto& v : corners){
-            //     center += glm::vec3(v);
-            // }
-            // center /= corners.size();
+            const auto corners = getFrustumCornersWorldSpace(pv);
 
-            // const auto lightView = glm::lookAt(center + dir.direction, center, UP);
+            glm::vec3 center = glm::vec3(0, 0, 0);
+            for (const auto& v : corners){
+                center += glm::vec3(v);
+            }
+            center /= corners.size();
 
-            // float minX = std::numeric_limits<float>::max();
-            // float maxX = std::numeric_limits<float>::lowest();
-            // float minY = std::numeric_limits<float>::max();
-            // float maxY = std::numeric_limits<float>::lowest();
-            // float minZ = std::numeric_limits<float>::max();
-            // float maxZ = std::numeric_limits<float>::lowest();
-            // for (const auto& v : corners){
-            //     const auto trf = lightView * v;
-            //     minX = std::min(minX, trf.x);
-            //     maxX = std::max(maxX, trf.x);
-            //     minY = std::min(minY, trf.y);
-            //     maxY = std::max(maxY, trf.y);
-            //     minZ = std::min(minZ, trf.z);
-            //     maxZ = std::max(maxZ, trf.z);
-            // }
+            const auto lightView = glm::lookAt(center - dir.direction, center, UP);
 
-            // // Tune this parameter according to the scene
-            // constexpr float zMult = 1.0f;
-            // if (minZ < 0){
-            //     minZ *= zMult;
-            // } else {
-            //     minZ /= zMult;
-            // }
-            // if (maxZ < 0){
-            //     maxZ /= zMult;
-            // } else
-            // {
-            //     maxZ *= zMult;
-            // }
+            float minX = std::numeric_limits<float>::max();
+            float maxX = std::numeric_limits<float>::lowest();
+            float minY = std::numeric_limits<float>::max();
+            float maxY = std::numeric_limits<float>::lowest();
+            float minZ = std::numeric_limits<float>::max();
+            float maxZ = std::numeric_limits<float>::lowest();
+            for (const auto& v : corners){
+                const auto trf = lightView * v;
+                minX = std::min(minX, trf.x);
+                maxX = std::max(maxX, trf.x);
+                minY = std::min(minY, trf.y);
+                maxY = std::max(maxY, trf.y);
+                minZ = std::min(minZ, trf.z);
+                maxZ = std::max(maxZ, trf.z);
+            }
 
-            // const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
-            // return lightProjection * lightView;
+            // Tune this parameter according to the scene
+            constexpr float zMult = 1.f;
+            if (minZ < 0){
+                minZ *= zMult;
+            } else {
+                minZ /= zMult;
+            }
+            if (maxZ < 0){
+                maxZ /= zMult;
+            } else {
+                maxZ *= zMult;
+            }
 
-            static constexpr auto lightScale = 5.f;
-
-            auto shadowWidth = config::SHADOW_RESOLUTION.w;
-            auto shadowHeight = config::SHADOW_RESOLUTION.h;
-            auto lightProjection = glm::perspective(glm::radians(45.0f), 
-            (GLfloat)shadowWidth / (GLfloat)shadowHeight, 
-            config::CAMERA_NEAR_PLANE, 
-            config::CAMERA_FAR_PLANE);
-
-            // TODO: make dependent on camera pos
-            lightProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, -30.0f, 30.f);
-            auto lightView = glm::lookAt(-dir.direction * lightScale, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));   
+            const glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
             return lightProjection * lightView;
         }
-
-
-
-
-
-
     }
 }
 

@@ -109,7 +109,7 @@ void main()
         outColor +=  calcDirLight(uDirectionalLights[i], normal_val, viewDir, uShininess, specular_val, uDiffuse);
     }
     
-    if(hasShadow == 1){
+    if(hasShadow == 1 && uNumDirLights != 0){
         float sh = 0.0;
         for(int i = 0; i < uNumDirLights; i++){
             vec4 shadowSpacePos = shadowSpaceMatrix[i] * model * ogPos;

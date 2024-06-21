@@ -104,12 +104,12 @@ int main(){
                 .quadratic = 0.0
             }
         }))
-        // .addLightSource(dirLight)
-        .addLightSource(light::make_dir({
-            .direction = {-1, -1, 0},
-            .color = {1, 1, 1},
-            .intensity = 1
-        }))
+        .addLightSource(dirLight)
+        // .addLightSource(light::make_dir({
+        //     .direction = {-1, -1, 0},
+        //     .color = {1, 1, 1},
+        //     .intensity = 1
+        // }))
         // .addLightSource(light::make_dir({
         //     .direction = {1, -1, 0},
         //     .color = {1, 1, 1},

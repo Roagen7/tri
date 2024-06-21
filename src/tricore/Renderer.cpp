@@ -12,13 +12,20 @@ using namespace tri::core;
 using namespace tri::core::materials;
 
 
-static constexpr auto DEPTH = "depth";
+static constexpr auto DEPTH = "depth/map2d";
 
 class ShadowProgram : public Program {
-    public:
-        ShadowProgram() : Program(
-            fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
-            fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
+public:
+    ShadowProgram() : Program(
+        fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
+};
+
+class OmniShadowProgram : public Program {
+public:
+    OmniShadowProgram() : Program(
+        fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
 };
 
 void Renderer::render(){

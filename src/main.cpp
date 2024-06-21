@@ -1,7 +1,7 @@
 /*
 small TODO list:
-> add CSM
 > add shadows from point lights
+> add CSM
 > add sprites
 > add cel shader material
 ...
