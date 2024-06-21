@@ -20,7 +20,9 @@ uniform float height_scale;
 
 
 uniform int hasShadow;
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap[MAX_DIR_LIGHTS];
+uniform mat4 shadowSpaceMatrix[MAX_DIR_LIGHTS];
+
 
 // ------ textures end ----
 
@@ -45,7 +47,7 @@ in vec2 texPos;
 in vec3 tangent;
 in mat3 TBN;
 in vec4 ogPos;
-in vec4 shadowSpacePos;
+in mat4 model;
 
 
 out vec4 FragColor;
@@ -64,7 +66,7 @@ float shadowCalculation(vec4 sPos, sampler2D shadow){
     {
     for(int y = -1; y <= 1; ++y)
     {
-        float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+        float pcfDepth = texture(shadow, projCoords.xy + vec2(x, y) * texelSize).r; 
         sha += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
     }    
     }
@@ -108,7 +110,13 @@ void main()
     }
     
     if(hasShadow == 1){
-        outColor -= outColor * shadowCalculation(shadowSpacePos, shadowMap);
+        float sh = 0.0;
+        for(int i = 0; i < uNumDirLights; i++){
+            vec4 shadowSpacePos = shadowSpaceMatrix[i] * model * ogPos;
+            sh += shadowCalculation(shadowSpacePos, shadowMap[i]);
+        }
+        sh /= uNumDirLights;
+        outColor -= outColor * sh;
     }
     
     if (hasTexture == 1){
@@ -141,6 +149,6 @@ void main()
     }
 
 
-    //FragColor = texture(shadowMap, texPos);
+    //FragColor = texture(shadowMap[0], texPos);
     //FragColor = vec4(shad, shad, shad, 1.0);
 }

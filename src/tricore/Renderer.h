@@ -11,6 +11,8 @@
 #include "./model/meshes/VertexCube.h"
 #include "./texture/Cubemap.h"
 #include "./frame/Frame.h"
+#include "./frame/DepthFrame.h"
+#include "./frame/ColorFrame.h"
 #include "./model/meshes/Plane.h"
 #include "./frame/BasePostprocess.h"
 #include "./frame/postprocesses/BloomPostprocess.h"
@@ -70,7 +72,7 @@ class Renderer {
         Model skybox;
         glm::vec3 bgColor{};
 
-        Frame pointLightFrame;
+        DepthFrame directionalShadowFrame[MAX_DIR_LIGHTS];
         std::unique_ptr<Program> shadowProgram;
         std::vector<std::shared_ptr<PointLight>> pointLights;
         std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
@@ -78,14 +80,14 @@ class Renderer {
 
         int windowWidth{}, windowHeight{};
 
-        Frame postprocessFrame;
+        ColorFrame postprocessFrame;
         Model framePlane;
 
         std::unique_ptr<postprocess::BasePostprocess> postprocessOp{};
 
         struct {
-            Frame bloomFrame0 = Frame(2, false);
-            Frame bloomFrame1 = Frame(2, false);
+            ColorFrame bloomFrame0 = ColorFrame(2);
+            ColorFrame bloomFrame1 = ColorFrame(2);
             postprocess::VerticalBlurPostprocess bloom0;
             postprocess::HorizontalBlurPostprocess bloom1;
             unsigned int bloomPasses{10};

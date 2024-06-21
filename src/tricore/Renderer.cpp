@@ -48,7 +48,9 @@ void Renderer::render(){
 
 void Renderer::setupFBs(int width, int height){
     if(width != windowWidth || height != windowHeight){
-        pointLightFrame.setup(width, height);
+        for(auto i = 0u; i < directionalLights.size(); i++){
+            directionalShadowFrame[i].setup(width, height);
+        }
         
         postprocessFrame.setup(width, height);
         
@@ -132,24 +134,27 @@ void Renderer::renderToFrame(Frame& frame){
 }
 
 void Renderer::populateShadowmaps(){
-    pointLightFrame.bind();
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glDepthFunc(GL_LESS);
-    
-    // TODO: transparency might not work
-    auto projection = light::get_lightspace_matrix(*directionalLights[0]);
+    for(auto i = 0u; i < directionalLights.size(); i++){
+        directionalShadowFrame[i].bind();
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glDepthFunc(GL_LESS);
+        
+        // TODO: transparency might not work
+        auto projection = light::get_lightspace_matrix(*directionalLights[0], camera);
 
-    for(const auto& model : this->models){
-        if(!model->castsShadow()) continue;
-        model->draw(projection, *shadowProgram);
+        for(const auto& model : this->models){
+            if(!model->castsShadow()) continue;
+            model->draw(projection, *shadowProgram);
+        }
+
+        directionalShadowFrame[i].unbind();
     }
-
-    pointLightFrame.unbind();
+ 
 }
 
 
-Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1, false), pointLightFrame(1, true){
+Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);
     glEnable(GL_STENCIL_TEST);
@@ -201,17 +206,18 @@ void Renderer::setupLights(const Program& material){
 
     /* add shadow depth maps to material as some far texture units*/
 
-    auto depth = pointLightFrame.getDepthMap();
     
     // 10 -- 12 -> shadow maps
-    
     static constexpr auto directionalShadowMapBegin = 10;
     material.use();
 
-    glActiveTexture(GL_TEXTURE0 + directionalShadowMapBegin);
-    glBindTexture(GL_TEXTURE_2D, pointLightFrame.getDepthMap());
-    material.uniformInt("shadowMap", directionalShadowMapBegin /* + i*/);
-    material.uniformMat4("shadowSpaceMatrix", light::get_lightspace_matrix(*directionalLights[0].get()));
+    for(auto i = 0u; i < directionalLights.size(); i++){
+        glActiveTexture(GL_TEXTURE0 + directionalShadowMapBegin + i);
+        glBindTexture(GL_TEXTURE_2D, directionalShadowFrame[i].getDepthMap());
+        material.uniformInt(fmt::format("shadowMap[{}]", i), directionalShadowMapBegin + i);
+        material.uniformMat4(fmt::format("shadowSpaceMatrix[{}]", i), light::get_lightspace_matrix(*directionalLights[i].get(), camera));
+    }
+  
     // material.uniformInt()
 }
 

@@ -1,8 +1,7 @@
 /*
 small TODO list:
-> add shadows from multiple sources
+> add CSM
 > add shadows from point lights
-> make shadows less hardcoded 
 > add sprites
 > add cel shader material
 ...

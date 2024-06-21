@@ -17,10 +17,9 @@ namespace tri::core::postprocess {
 
         BasePostprocess(): BasePostprocess(fmt::format("{}/{}/{}/fs.glsl", SHADER_PATH, POSTPROCESS, IDENTITY)){}
 
-        void setup(Frame& frame){
+        void setup(ColorFrame& frame){
             colorAttachments = frame.getColorAttachments();
             colorAttachmentsCount = frame.getColorAttachmentsCount();
-            depthAttachment = frame.getDepthMap();
             for(auto i = 0u; i < colorAttachmentsCount; i++){
                 glActiveTexture(GL_TEXTURE0 + i);
                 glBindTexture(GL_TEXTURE_2D, colorAttachments[i]);	
@@ -40,7 +39,6 @@ namespace tri::core::postprocess {
         GLuint* colorAttachments;
         GLuint colorAttachmentsCount{};
 
-        GLuint depthAttachment;
     };
 }
 

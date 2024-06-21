@@ -10,7 +10,7 @@
 using namespace tri::core;
 
 glm::mat4 Camera::view() const{
-    return glm::perspective(glm::radians(90.0f), w/h, config::CAMERA_NEAR_PLANE, config::CAMERA_FAR_PLANE) * glm::lookAt(pos, pos + dir, UP);
+    return glm::perspective(glm::radians(fov), w/h, config::CAMERA_NEAR_PLANE, config::CAMERA_FAR_PLANE) * glm::lookAt(pos, pos + dir, UP);
 }
 
 glm::vec3 Camera::getDir(){
@@ -19,6 +19,15 @@ glm::vec3 Camera::getDir(){
 
 glm::vec3 Camera::getPos(){
     return pos;
+}
+
+float Camera::getAspectRatio(){
+    return w / h;
+}
+
+
+float Camera::getFov(){
+    return fov;
 }
 
 

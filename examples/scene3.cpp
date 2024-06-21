@@ -70,14 +70,14 @@ int main(){
             ;
             return capsule;
         }())
-        // .add([](){
-        //     auto lightModel = std::make_shared<Model>();
-        //     lightModel->setMesh(Cube())
-        //     .setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0})
-        //     .setTranslation(secondLightPos)
-        //     .setScaleXYZ({0.3, 0.3, 0.3});
-        //     return lightModel;
-        // }())
+        .add([](){
+            auto lightModel = std::make_shared<Model>();
+            lightModel->setMesh(Cube())
+            .setMaterial<LightMaterial>(glm::vec3{1.0, 1.0, 1.0})
+            .setTranslation(secondLightPos)
+            .setScaleXYZ({0.3, 0.3, 0.3});
+            return lightModel;
+        }())
         .add(lightModel)
         .add([](){
             auto floor = std::make_shared<Model>();
@@ -95,16 +95,27 @@ int main(){
             return floor;
         }())
         .addLightSource(light)
-        // .addLightSource(light::make_point({
-        //     .pos = secondLightPos,
+        .addLightSource(light::make_point({
+            .pos = secondLightPos,
+            .color = {1, 1, 1},
+            .attentuation = {
+                .constant = 1.0,
+                .linear = 0.1,
+                .quadratic = 0.0
+            }
+        }))
+        // .addLightSource(dirLight)
+        .addLightSource(light::make_dir({
+            .direction = {-1, -1, 0},
+            .color = {1, 1, 1},
+            .intensity = 1
+        }))
+        // .addLightSource(light::make_dir({
+        //     .direction = {1, -1, 0},
         //     .color = {1, 1, 1},
-        //     .attentuation = {
-        //         .constant = 1.0,
-        //         .linear = 0.1,
-        //         .quadratic = 0.0
-        //     }
+        //     .intensity = 1
         // }))
-        .addLightSource(dirLight);
+        ;
 
     static constexpr auto R = 5.0;
     while (!glfwWindowShouldClose(window.get()))
