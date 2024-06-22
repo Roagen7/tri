@@ -1,9 +1,7 @@
 /*
 small TODO list:
-> add shadows from point lights
 > add CSM
 > add sprites
-> add cel shader material
 ...
 > add gui
 > add entity tree

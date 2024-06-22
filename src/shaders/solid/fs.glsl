@@ -23,6 +23,8 @@ uniform int hasShadow;
 uniform sampler2D shadowMap[MAX_DIR_LIGHTS];
 uniform mat4 shadowSpaceMatrix[MAX_DIR_LIGHTS];
 
+uniform samplerCube shadowCube[MAX_POINT_LIGHTS];
+uniform float pointLightFarPlane;
 
 // ------ textures end ----
 
@@ -37,6 +39,7 @@ uniform float uSpecular;
 uniform float uShininess;
 
 uniform vec3 viewDir;
+uniform vec3 viewPos;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
@@ -74,6 +77,33 @@ float shadowCalculation(vec4 sPos, sampler2D shadow){
     return sha;
 }   
 
+float omniShadowCalculation(vec3 fragPos, vec3 lightPos, vec3 viewDir, float far_plane, samplerCube depthMap){
+    vec3 gridSamplingDisk[20] = vec3[](
+    vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+    vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+    vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+    vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+    );
+
+    vec3 fragToLight = fragPos - lightPos;
+    float currentDepth = length(fragToLight);
+    float sha = 0.0;
+    float bias = 0.15;
+    int samples = 20;
+    float viewDistance = length(viewDir - fragPos);
+    float diskRadius = (1.0 + (viewDistance / far_plane)) / 25.0;
+    for(int j = 0; j < samples; ++j){
+        float closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[j] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            sha += 1.0;
+    }
+    sha /= float(samples);
+        
+    return sha;
+}
+
 void main()
 {   
     if(flatColor == 1){
@@ -109,13 +139,20 @@ void main()
         outColor +=  calcDirLight(uDirectionalLights[i], normal_val, viewDir, uShininess, specular_val, uDiffuse);
     }
     
-    if(hasShadow == 1 && uNumDirLights != 0){
-        float sh = 0.0;
-        for(int i = 0; i < uNumDirLights; i++){
+    float sh = 1.0;
+    for(int i = 0; i < uNumDirLights; i++){
             vec4 shadowSpacePos = shadowSpaceMatrix[i] * model * ogPos;
-            sh += shadowCalculation(shadowSpacePos, shadowMap[i]);
+            sh = min(sh, shadowCalculation(shadowSpacePos, shadowMap[i]));
+    }
+
+    if(hasShadow == 1 && uNumPointLights != 0){
+        for(int i = 0; i < uNumPointLights; i++){
+            float s = omniShadowCalculation(worldPos.xyz, uPointLights[i].position, viewDir, pointLightFarPlane, shadowCube[i]);
+            sh = min(sh, s);
         }
-        sh /= uNumDirLights;
+    }
+
+    if(hasShadow == 1){
         outColor -= outColor * sh;
     }
     
@@ -128,11 +165,6 @@ void main()
     outColor.x = min(outColor.x, 1.0);
     outColor.y = min(outColor.y, 1.0);
     outColor.z = min(outColor.z, 1.0);
-    //texture(texture0, texPos).t
-    //gl_FragColor = vec4(texture(texture0, texPos).xyz, 1.0);
-    //gl_FragColor = vec4(texture(normalMap, texPos).xyz, 1.0);
-    //gl_FragColor = vec4(texture(heightMap, texPos).xyz, 1.0);
-    //gl_FragColor = vec4(normal_val, 1.0);
 
     float alpha = 1.0;
     if (hasTexture == 1 ){
@@ -151,4 +183,7 @@ void main()
 
     //FragColor = texture(shadowMap[0], texPos);
     //FragColor = vec4(shad, shad, shad, 1.0);
+
+    // FragColor = vec4(s, s, s, 1.0);
+    //FragColor = texture(shadowCube[0], worldPos.xyz - uPointLights[0].position);
 }

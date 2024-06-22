@@ -9,5 +9,10 @@ namespace tri::config {
         unsigned int w = 1024;
         unsigned int h = 1024;
     } SHADOW_RESOLUTION;
+
+    static constexpr struct {
+        float far = 25.f;
+        float near = 0.1f;
+    } POINT_LIGHT_SHADOW_PLANES;
 }
 

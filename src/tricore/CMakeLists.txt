@@ -14,5 +14,6 @@ ${SOURCE_DIR}/tricore/program/shaderError.cpp
 ${SOURCE_DIR}/tricore/frame/Frame.cpp
 ${SOURCE_DIR}/tricore/frame/DepthFrame.cpp
 ${SOURCE_DIR}/tricore/frame/ColorFrame.cpp
+${SOURCE_DIR}/tricore/frame/OmniDepthFrame.cpp
 )
 target_link_libraries(tricore PUBLIC glad triutil fmt glm glfw stb Boost::filesystem)

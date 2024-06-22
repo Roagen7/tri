@@ -92,14 +92,19 @@ void Model::draw(const Camera& camera, Program& material){
     draw(camera.view(), material);
 }
 
+
 void Model::draw(glm::mat4 projection, Program& material){
+    material.uniformMat4("projection", projection);
+    draw(material);
+}
+
+void Model::draw(Program& material){
     material.use();
     material.uniformInt("hasShadow", receiveShadow);
     material.uniformMat4("rotation", glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.x, {1, 0, 0})
     * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.y, {0, 1, 0})
     * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.z, {0, 0, 1}));
     material.uniformMat4("transform", glm::translate(glm::identity<glm::mat4x4>(), translation) * glm::scale(glm::identity<glm::mat4x4>(), scale));
-    material.uniformMat4("projection", projection);
     mesh.draw();
 }
 

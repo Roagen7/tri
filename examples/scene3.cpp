@@ -26,7 +26,7 @@ int main(){
             }
     });
 
-    static constexpr glm::vec3 secondLightPos = {-10, 1, -10};
+    static constexpr glm::vec3 secondLightPos = {-5, 1, -5};
 
     auto lightModel = std::make_shared<Model>();
         lightModel->setMesh(Sphere())
@@ -104,7 +104,7 @@ int main(){
                 .quadratic = 0.0
             }
         }))
-        .addLightSource(dirLight)
+        // .addLightSource(dirLight)
         // .addLightSource(light::make_dir({
         //     .direction = {-1, -1, 0},
         //     .color = {1, 1, 1},

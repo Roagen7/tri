@@ -13,6 +13,7 @@
 #include "./frame/Frame.h"
 #include "./frame/DepthFrame.h"
 #include "./frame/ColorFrame.h"
+#include "./frame/OmniDepthFrame.h"
 #include "./model/meshes/Plane.h"
 #include "./frame/BasePostprocess.h"
 #include "./frame/postprocesses/BloomPostprocess.h"
@@ -52,11 +53,13 @@ class Renderer {
         void renderToFrame(Frame& frame);
         void copyToFrame(Frame* frame, postprocess::BasePostprocess& op);
         void populateShadowmaps();
+        void renderShadowView(Program& program);
 
         void renderModels();
         void renderModelsWithAlpha();
         void renderModel(Model* model);
         void setupLights(const Program& material);
+        void setupShadows(const Program& material);
 
         void postprocess();
         void addBloom();
@@ -66,14 +69,15 @@ class Renderer {
         GLFWwindow& window;
         Camera& camera;
 
-        // TODO: change everything to shared ptrs i.e. models, pointLights, etc.
         std::vector<std::shared_ptr<Model>> models;
 
         Model skybox;
         glm::vec3 bgColor{};
 
         DepthFrame directionalShadowFrame[MAX_DIR_LIGHTS];
+        OmniDepthFrame pointShadowFrame[MAX_POINT_LIGHTS];
         std::unique_ptr<Program> shadowProgram;
+        std::unique_ptr<Program> omniShadowProgram;
         std::vector<std::shared_ptr<PointLight>> pointLights;
         std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
         std::shared_ptr<AmbientLight> ambientLight;

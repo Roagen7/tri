@@ -49,6 +49,7 @@ namespace tri::core {
         void draw(const Camera& camera);
         void draw(const Camera&, Program& material);
         void draw(glm::mat4 projection, Program& material);
+        void draw(Program& material);
 
     protected:
         Mesh mesh;

@@ -13,6 +13,7 @@ using namespace tri::core::materials;
 
 
 static constexpr auto DEPTH = "depth/map2d";
+static constexpr auto OMNI_DEPTH = "depth/omni";
 
 class ShadowProgram : public Program {
 public:
@@ -24,8 +25,11 @@ public:
 class OmniShadowProgram : public Program {
 public:
     OmniShadowProgram() : Program(
-        fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
-        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
+        fmt::format("{}/{}/vs.glsl", SHADER_PATH, OMNI_DEPTH), 
+        fmt::format("{}/{}/fs.glsl", SHADER_PATH, OMNI_DEPTH),
+        fmt::format("{}/{}/gs.glsl", SHADER_PATH, OMNI_DEPTH)
+        )
+        {}
 };
 
 void Renderer::render(){
@@ -50,13 +54,14 @@ void Renderer::render(){
     glfwPollEvents();
 }
 
-
-
-
 void Renderer::setupFBs(int width, int height){
     if(width != windowWidth || height != windowHeight){
         for(auto i = 0u; i < directionalLights.size(); i++){
             directionalShadowFrame[i].setup(width, height);
+        }
+
+        for(auto i = 0u; i < pointLights.size(); i++){
+            pointShadowFrame[i].setup(width, height);
         }
         
         postprocessFrame.setup(width, height);
@@ -64,7 +69,7 @@ void Renderer::setupFBs(int width, int height){
         bloomUtils.bloomFrame0.setup(width, height);
         bloomUtils.bloomFrame1.setup(width, height);
 
-        postprocessOp->setup(postprocessFrame); // remember to change it
+        postprocessOp->setup(postprocessFrame); 
         bloomUtils.bloom0.setup(bloomUtils.bloomFrame0);
         bloomUtils.bloom1.setup(bloomUtils.bloomFrame1);
     }
@@ -133,6 +138,7 @@ void Renderer::renderToFrame(Frame& frame){
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glDepthFunc(GL_LEQUAL);
+
     skybox.draw(camera);
 
     renderModels();
@@ -143,25 +149,48 @@ void Renderer::renderToFrame(Frame& frame){
 void Renderer::populateShadowmaps(){
     for(auto i = 0u; i < directionalLights.size(); i++){
         directionalShadowFrame[i].bind();
+        shadowProgram->uniformMat4("projection", light::get_lightspace_matrix(*directionalLights[i], camera));
+        renderShadowView(*shadowProgram);
+        directionalShadowFrame[i].unbind();
+    }
+    
+    for(auto i = 0u; i < pointLights.size(); i++){
+        pointShadowFrame[i].bind();
+        auto projectionMatrices = light::get_lightspace_matrices(*pointLights[i]);
+        omniShadowProgram->uniformMat4("shadowMatrices[0]", projectionMatrices[0]);
+        omniShadowProgram->uniformMat4("shadowMatrices[1]", projectionMatrices[1]);
+        omniShadowProgram->uniformMat4("shadowMatrices[2]", projectionMatrices[2]);
+        omniShadowProgram->uniformMat4("shadowMatrices[3]", projectionMatrices[3]);
+        omniShadowProgram->uniformMat4("shadowMatrices[4]", projectionMatrices[4]);
+        omniShadowProgram->uniformMat4("shadowMatrices[5]", projectionMatrices[5]);
+        omniShadowProgram->uniformVec3("lightPos", pointLights[i]->pos);
+        omniShadowProgram->uniformFloat("far_plane", config::POINT_LIGHT_SHADOW_PLANES.far);
+        renderShadowView(*omniShadowProgram);
+        pointShadowFrame[i].unbind();
+    }
+}
+
+void Renderer::renderShadowView(Program& program){
         glEnable(GL_DEPTH_TEST);
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthFunc(GL_LESS);
-        
         // TODO: transparency might not work
-        auto projection = light::get_lightspace_matrix(*directionalLights[0], camera);
-
         for(const auto& model : this->models){
             if(!model->castsShadow()) continue;
-            model->draw(projection, *shadowProgram);
+            model->draw(program);
         }
-
-        directionalShadowFrame[i].unbind();
-    }
- 
 }
 
 
-Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(camera), postprocessFrame(1){
+
+Renderer::Renderer(GLFWwindow& window, Camera& camera): 
+    window(window), 
+    camera(camera), 
+    postprocessFrame(1),
+    postprocessOp(std::make_unique<postprocess::BasePostprocess>()),
+    shadowProgram(std::make_unique<ShadowProgram>()),
+    omniShadowProgram(std::make_unique<OmniShadowProgram>()) {
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);
     glEnable(GL_STENCIL_TEST);
@@ -173,16 +202,12 @@ Renderer::Renderer(GLFWwindow& window, Camera& camera): window(window), camera(c
 
     skybox.setMesh(meshes::VertexCube());
     skybox.setScaleXYZ({SKYBOX_SCALE, SKYBOX_SCALE, SKYBOX_SCALE});
-
-    // add setMaterial to default postprocessing (i.e. identity)
-    postprocessOp = std::make_unique<postprocess::BasePostprocess>();
-    shadowProgram = std::make_unique<ShadowProgram>();
-
 };
 
 
 void Renderer::setupLights(const Program& material){
     material.uniformVec3("viewDir", camera.getDir());
+    material.uniformVec3("viewPos", camera.getPos());
 
     if(ambientLight){
         material.uniformVec3("ambientColor", ambientLight->color);
@@ -210,12 +235,11 @@ void Renderer::setupLights(const Program& material){
         material.uniformVec3(fmt::format("{}.direction", prefix), light->direction);
         material.uniformFloat(fmt::format("{}.intensity", prefix), light->intensity);
     }
+}
 
-    /* add shadow depth maps to material as some far texture units*/
-
-    
-    // 10 -- 12 -> shadow maps
+void Renderer::setupShadows(const Program& material){
     static constexpr auto directionalShadowMapBegin = 10;
+    static constexpr auto pointShadowMapBegin = 20;
     material.use();
 
     for(auto i = 0u; i < directionalLights.size(); i++){
@@ -224,8 +248,21 @@ void Renderer::setupLights(const Program& material){
         material.uniformInt(fmt::format("shadowMap[{}]", i), directionalShadowMapBegin + i);
         material.uniformMat4(fmt::format("shadowSpaceMatrix[{}]", i), light::get_lightspace_matrix(*directionalLights[i].get(), camera));
     }
-  
-    // material.uniformInt()
+
+    material.uniformFloat("pointLightFarPlane", config::POINT_LIGHT_SHADOW_PLANES.far);
+
+    /*  
+        NOTE: 
+        for samplerCube arrays opengl forces filling every cubemap
+        for dynamic indexing to work
+        source: https://stackoverflow.com/questions/55171423/array-of-samplercube
+    */ 
+    
+    for(auto i = 0u; i < MAX_POINT_LIGHTS; i++){
+        glActiveTexture(GL_TEXTURE0 + pointShadowMapBegin + i);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, pointShadowFrame[i].getDepthMap());
+        material.uniformInt(fmt::format("shadowCube[{}]", i), pointShadowMapBegin + i);
+    }
 }
 
 void Renderer::renderModels(){
@@ -262,6 +299,7 @@ void Renderer::renderModelsWithAlpha(){
 void Renderer::renderModel(Model* model){
     const auto& material = model->getMaterial();
     setupLights(material);
+    setupShadows(material);
     model->draw(camera);
 }
 

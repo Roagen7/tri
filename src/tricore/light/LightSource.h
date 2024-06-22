@@ -55,19 +55,22 @@ namespace tri::core {
         }
 
         inline std::array<glm::mat4x4, 6> get_lightspace_matrices(PointLight point){
-            float near = 1.f;
-            float far = 25.f;
             auto shadowWidth = config::SHADOW_RESOLUTION.w;
             auto shadowHeight = config::SHADOW_RESOLUTION.h;
-            auto perspective = glm::perspective(glm::radians(45.0f), (GLfloat)shadowWidth / (GLfloat)shadowHeight, near, far);
+            auto perspective = glm::perspective(
+                glm::radians(90.0f), 
+                (GLfloat)config::SHADOW_RESOLUTION.w / 
+                (GLfloat)config::SHADOW_RESOLUTION.h, 
+                config::POINT_LIGHT_SHADOW_PLANES.near, 
+                config::POINT_LIGHT_SHADOW_PLANES.far);
 
             return {
                 perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, 0.f}, {0.f, -1.f, 0.f}),
                 perspective * glm::lookAt(point.pos, point.pos + glm::vec3{-1.f, 0.f, 0.f}, {0.f, -1.f, 0.f}),
                 perspective * glm::lookAt(point.pos, point.pos + glm::vec3{0.f, 1.f, 0.f}, {0.f, 0.f, 1.f}),
-                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, -1.f, 0.f}, {0.f, -1.f, -1.f}),
-                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, 1.f}, {0.f, -1.f, 0.f}),
-                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{1.f, 0.f, -1.f}, {0.f, -1.f, 0.f})
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{0.f, -1.f, 0.f}, {0.f, 0.f, -1.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{0.f, 0.f, 1.f}, {0.f, -1.f, 0.f}),
+                perspective * glm::lookAt(point.pos, point.pos + glm::vec3{0.f, 0.f, -1.f}, {0.f, -1.f, 0.f})
             };
         }
 
