@@ -14,5 +14,9 @@ namespace tri::config {
         float far = 25.f;
         float near = 0.1f;
     } POINT_LIGHT_SHADOW_PLANES;
+
+    static constexpr auto MAX_POINT_LIGHTS = 10;
+    static constexpr auto MAX_DIR_LIGHTS = 3;
+    static constexpr auto SKYBOX_SCALE = 10000;
 }
 

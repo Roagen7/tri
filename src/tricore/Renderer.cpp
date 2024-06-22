@@ -10,27 +10,7 @@
   
 using namespace tri::core;
 using namespace tri::core::materials;
-
-
-static constexpr auto DEPTH = "depth/map2d";
-static constexpr auto OMNI_DEPTH = "depth/omni";
-
-class ShadowProgram : public Program {
-public:
-    ShadowProgram() : Program(
-        fmt::format("{}/{}/vs.glsl", SHADER_PATH, DEPTH), 
-        fmt::format("{}/{}/fs.glsl", SHADER_PATH, DEPTH)){}
-};
-
-class OmniShadowProgram : public Program {
-public:
-    OmniShadowProgram() : Program(
-        fmt::format("{}/{}/vs.glsl", SHADER_PATH, OMNI_DEPTH), 
-        fmt::format("{}/{}/fs.glsl", SHADER_PATH, OMNI_DEPTH),
-        fmt::format("{}/{}/gs.glsl", SHADER_PATH, OMNI_DEPTH)
-        )
-        {}
-};
+using namespace tri::config;
 
 void Renderer::render(){
     int width, height;
@@ -60,17 +40,11 @@ void Renderer::setupFBs(int width, int height){
     execute the same logic as this function, but using specialized frames
     */
     if(width != windowWidth || height != windowHeight){
-        // TODO: move to adequate shadow mapper
-        for(auto i = 0u; i < directionalLights.size(); i++){
-            directionalShadowFrame[i].setup(width, height);
-        }
-        // TODO: move to adequate shadow mapper
-        for(auto i = 0u; i < pointLights.size(); i++){
-            pointShadowFrame[i].setup(width, height);
-        }
-        
+        directionalMaps.setup(width, height, directionalLights.size());
+        omniDirectionalMaps.setup(width, height, pointLights.size());
+
         postprocessFrame.setup(width, height);
-        
+
         bloomUtils.bloomFrame0.setup(width, height);
         bloomUtils.bloomFrame1.setup(width, height);
 
@@ -153,27 +127,8 @@ void Renderer::renderToFrame(Frame& frame){
 }
 
 void Renderer::populateShadowmaps(){
-    for(auto i = 0u; i < directionalLights.size(); i++){
-        directionalShadowFrame[i].bind();
-        shadowProgram->uniformMat4("projection", light::get_lightspace_matrix(*directionalLights[i], camera));
-        renderShadowView(*shadowProgram);
-        directionalShadowFrame[i].unbind();
-    }
-    
-    for(auto i = 0u; i < pointLights.size(); i++){
-        pointShadowFrame[i].bind();
-        auto projectionMatrices = light::get_lightspace_matrices(*pointLights[i]);
-        omniShadowProgram->uniformMat4("shadowMatrices[0]", projectionMatrices[0]);
-        omniShadowProgram->uniformMat4("shadowMatrices[1]", projectionMatrices[1]);
-        omniShadowProgram->uniformMat4("shadowMatrices[2]", projectionMatrices[2]);
-        omniShadowProgram->uniformMat4("shadowMatrices[3]", projectionMatrices[3]);
-        omniShadowProgram->uniformMat4("shadowMatrices[4]", projectionMatrices[4]);
-        omniShadowProgram->uniformMat4("shadowMatrices[5]", projectionMatrices[5]);
-        omniShadowProgram->uniformVec3("lightPos", pointLights[i]->pos);
-        omniShadowProgram->uniformFloat("far_plane", config::POINT_LIGHT_SHADOW_PLANES.far);
-        renderShadowView(*omniShadowProgram);
-        pointShadowFrame[i].unbind();
-    }
+    directionalMaps.populate(models, directionalLights, camera);
+    omniDirectionalMaps.populate(models, pointLights);
 }
 
 void Renderer::renderShadowView(Program& program){
@@ -187,15 +142,11 @@ void Renderer::renderShadowView(Program& program){
         }
 }
 
-
-
 Renderer::Renderer(GLFWwindow& window, Camera& camera): 
     window(window), 
     camera(camera), 
     postprocessFrame(1),
-    postprocessOp(std::make_unique<postprocess::BasePostprocess>()),
-    shadowProgram(std::make_unique<ShadowProgram>()),
-    omniShadowProgram(std::make_unique<OmniShadowProgram>()) {
+    postprocessOp(std::make_unique<postprocess::BasePostprocess>()) {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);
@@ -244,31 +195,8 @@ void Renderer::setupLights(const Program& material){
 }
 
 void Renderer::setupShadows(const Program& material){
-    static constexpr auto directionalShadowMapBegin = 10;
-    static constexpr auto pointShadowMapBegin = 20;
-    material.use();
-
-    for(auto i = 0u; i < directionalLights.size(); i++){
-        glActiveTexture(GL_TEXTURE0 + directionalShadowMapBegin + i);
-        glBindTexture(GL_TEXTURE_2D, directionalShadowFrame[i].getDepthMap());
-        material.uniformInt(fmt::format("shadowMap[{}]", i), directionalShadowMapBegin + i);
-        material.uniformMat4(fmt::format("shadowSpaceMatrix[{}]", i), light::get_lightspace_matrix(*directionalLights[i].get(), camera));
-    }
-
-    material.uniformFloat("pointLightFarPlane", config::POINT_LIGHT_SHADOW_PLANES.far);
-
-    /*  
-        NOTE: 
-        for samplerCube arrays opengl forces filling every cubemap
-        for dynamic indexing to work
-        source: https://stackoverflow.com/questions/55171423/array-of-samplercube
-    */ 
-    
-    for(auto i = 0u; i < MAX_POINT_LIGHTS; i++){
-        glActiveTexture(GL_TEXTURE0 + pointShadowMapBegin + i);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, pointShadowFrame[i].getDepthMap());
-        material.uniformInt(fmt::format("shadowCube[{}]", i), pointShadowMapBegin + i);
-    }
+    directionalMaps.attach(material, directionalLights, camera);
+    omniDirectionalMaps.attach(material, pointLights);
 }
 
 void Renderer::renderModels(){

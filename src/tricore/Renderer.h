@@ -17,10 +17,9 @@
 #include "./model/meshes/Plane.h"
 #include "./frame/BasePostprocess.h"
 #include "./frame/postprocesses/BloomPostprocess.h"
-
-static constexpr auto MAX_POINT_LIGHTS = 10;
-static constexpr auto MAX_DIR_LIGHTS = 3;
-static constexpr auto SKYBOX_SCALE = 10000;
+#include "./light/OmniShadowMapper.h"
+#include "./light/DirectionalShadowMapper.h"
+#include "config.h"
 
 namespace tri::core {
 
@@ -73,11 +72,9 @@ class Renderer {
 
         Model skybox;
         glm::vec3 bgColor{};
-
-        DepthFrame directionalShadowFrame[MAX_DIR_LIGHTS];
-        OmniDepthFrame pointShadowFrame[MAX_POINT_LIGHTS];
-        std::unique_ptr<Program> shadowProgram;
-        std::unique_ptr<Program> omniShadowProgram;
+        
+        shadow::DirectionalShadowMapper directionalMaps;
+        shadow::OmniShadowMapper omniDirectionalMaps;
         std::vector<std::shared_ptr<PointLight>> pointLights;
         std::vector<std::shared_ptr<DirectionalLight>> directionalLights;
         std::shared_ptr<AmbientLight> ambientLight;
@@ -96,5 +93,6 @@ class Renderer {
             postprocess::HorizontalBlurPostprocess bloom1;
             unsigned int bloomPasses{10};
         } bloomUtils;
+
     };
 }

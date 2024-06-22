@@ -18,6 +18,7 @@ namespace tri::core {
             float linear{0};
             float quadratic{0};
         } attentuation;
+
     };
 
     struct DirectionalLight {
