@@ -45,7 +45,7 @@ void Renderer::render(){
 
     glViewport(0, 0, width, height);
 
-    renderToFrame(bloomUtils.bloomFrame0);
+    renderToFrame(bloomUtils.bloomFrame0); /* TODO: this should be changed to more meaningful name */
 
     addBloom();
     postprocess();
@@ -55,11 +55,16 @@ void Renderer::render(){
 }
 
 void Renderer::setupFBs(int width, int height){
+    /*
+    TODO: 
+    execute the same logic as this function, but using specialized frames
+    */
     if(width != windowWidth || height != windowHeight){
+        // TODO: move to adequate shadow mapper
         for(auto i = 0u; i < directionalLights.size(); i++){
             directionalShadowFrame[i].setup(width, height);
         }
-
+        // TODO: move to adequate shadow mapper
         for(auto i = 0u; i < pointLights.size(); i++){
             pointShadowFrame[i].setup(width, height);
         }
@@ -98,6 +103,7 @@ void Renderer::addBloom(){
     copyToFrame(&postprocessFrame, bloomUtils.bloom0);
 }
 
+// todo: change name and clarify the logic
 void Renderer::copyToFrame(Frame* frame, postprocess::BasePostprocess& op){
     if(frame){
         frame->bind();

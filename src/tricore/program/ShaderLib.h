@@ -11,7 +11,9 @@ static constexpr auto FILES_FS = {
     "test.glsl",
     "pointLight.glsl",
     "dirLight.glsl",
-    "parallaxMapping.glsl"
+    "parallaxMapping.glsl",
+    "shadowCalculation.glsl",
+    "omniShadowCalculation.glsl"
 };
 
 static constexpr auto FILES_VS = {
