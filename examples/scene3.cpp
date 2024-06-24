@@ -94,17 +94,17 @@ int main(){
                 ;
             return floor;
         }())
-        .addLightSource(light)
-        .addLightSource(light::make_point({
-            .pos = secondLightPos,
-            .color = {1, 1, 1},
-            .attentuation = {
-                .constant = 1.0,
-                .linear = 0.1,
-                .quadratic = 0.0
-            }
-        }))
-        // .addLightSource(dirLight)
+        // .addLightSource(light)
+        // .addLightSource(light::make_point({
+        //     .pos = secondLightPos,
+        //     .color = {1, 1, 1},
+        //     .attentuation = {
+        //         .constant = 1.0,
+        //         .linear = 0.0,
+        //         .quadratic = 0.0
+        //     }
+        // }))
+        .addLightSource(dirLight)
         // .addLightSource(light::make_dir({
         //     .direction = {-1, -1, 0},
         //     .color = {1, 1, 1},

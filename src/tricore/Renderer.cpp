@@ -20,7 +20,7 @@ void Renderer::render(){
     windowWidth = width;
     windowHeight = height;
 
-    glViewport(0, 0, 1024, 1024);
+    glViewport(0, 0, config::SHADOW_RESOLUTION.w, config::SHADOW_RESOLUTION.h);
     populateShadowmaps();
 
     glViewport(0, 0, width, height);
@@ -146,7 +146,8 @@ Renderer::Renderer(GLFWwindow& window, Camera& camera):
     window(window), 
     camera(camera), 
     postprocessFrame(1),
-    postprocessOp(std::make_unique<postprocess::BasePostprocess>()) {
+    postprocessOp(std::make_unique<postprocess::BasePostprocess>()),
+    directionalMaps(config::CSM_LAYERS) {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_CLAMP);

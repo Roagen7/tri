@@ -67,8 +67,8 @@ std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview){
 }
 
 glm::mat4x4 tri::core::light::get_lightspace_matrix(DirectionalLight dir, Camera& camera, float nearPlane, float farPlane){
-    auto pv = glm::perspective(glm::radians(camera.getFov()), 
-    camera.getAspectRatio(), nearPlane, farPlane) * glm::lookAt(camera.getPos(), camera.getPos() + camera.getDir(), UP);
+    auto pv = glm::perspective(glm::radians(90.f), camera.getAspectRatio(), nearPlane, farPlane) 
+    * glm::lookAt(camera.getPos(), camera.getPos() + camera.getDir(), UP);
 
     const auto corners = getFrustumCornersWorldSpace(pv);
 

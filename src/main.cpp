@@ -1,12 +1,11 @@
 /*
 small TODO list:
-> add CSM
+> add hdr
 > add sprites
 ...
 > add gui
 > add entity tree
 
-> add hdr
 
 >dynamic lib for scenes (in gui) ?
 

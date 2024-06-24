@@ -1,5 +1,6 @@
 #define MAX_POINT_LIGHTS 10
 #define MAX_DIR_LIGHTS 3
+#define MAX_CASCADES 16
 
 
 uniform int flatColor;
@@ -20,8 +21,10 @@ uniform float height_scale;
 
 
 uniform int hasShadow;
-uniform sampler2D shadowMap[MAX_DIR_LIGHTS];
-uniform mat4 shadowSpaceMatrix[MAX_DIR_LIGHTS];
+uniform sampler2DArray shadowMap[MAX_DIR_LIGHTS];
+uniform mat4 shadowSpaceMatrix[MAX_DIR_LIGHTS * MAX_CASCADES];
+uniform int cascadeCount;
+uniform float cascadePlaneDistances[MAX_CASCADES];
 
 uniform samplerCube shadowCube[MAX_POINT_LIGHTS];
 uniform float pointLightFarPlane;
@@ -43,6 +46,8 @@ uniform vec3 viewPos;
 uniform vec3 ambientColor;
 uniform float ambientIntensity;
 
+uniform mat4 projection;
+
 in vec3 col;
 in vec3 normal;
 in vec4 worldPos;
@@ -55,6 +60,24 @@ in mat4 model;
 
 out vec4 FragColor;
 out vec4 BrightColor;
+
+
+int selectShadowLayer(vec4 projectedCoord){
+    float depthValue = projectedCoord.z;
+        
+    int layer = -1;
+    for (int i = 0; i < cascadeCount; ++i){
+        if (depthValue < cascadePlaneDistances[i]){
+            layer = i;
+            break;
+        }
+    }
+    if (layer == -1){
+        layer = cascadeCount - 1;
+    }
+    return layer;
+}
+
 
 void main()
 {   
@@ -92,16 +115,19 @@ void main()
     }
     
     float sh = 1.0;
+    int layer;
     for(int i = 0; i < uNumDirLights; i++){
-            vec4 shadowSpacePos = shadowSpaceMatrix[i] * model * ogPos;
-            sh = min(sh, shadowCalculation(shadowSpacePos, shadowMap[i]));
+        layer = selectShadowLayer(projection * worldPos);
+        float bias = max(0.05 * (1.0 - dot(normal_val, uDirectionalLights[i].direction)), 0.005);
+        bias *= 1 / (cascadePlaneDistances[layer] * 0.5f);
+        
+        vec4 shadowSpacePos = shadowSpaceMatrix[i * MAX_CASCADES + layer] * worldPos;
+        sh = min(sh, shadowCalculation(shadowSpacePos, shadowMap[i], layer, bias));
     }
 
-    if(hasShadow == 1 && uNumPointLights != 0){
-        for(int i = 0; i < uNumPointLights; i++){
-            float s = omniShadowCalculation(worldPos.xyz, uPointLights[i].position, viewDir, pointLightFarPlane, shadowCube[i]);
-            sh = min(sh, s);
-        }
+    for(int i = 0; i < uNumPointLights; i++){
+        float s = omniShadowCalculation(worldPos.xyz, uPointLights[i].position, viewDir, pointLightFarPlane, shadowCube[i]);
+        sh = min(sh, s);
     }
 
     if(hasShadow == 1){
@@ -119,9 +145,8 @@ void main()
     outColor.z = min(outColor.z, 1.0);
 
     float alpha = 1.0;
-    if (hasTexture == 1 ){
+    if (hasTexture == 1){
         alpha = texture(texture0, texCoords_val).a;
-        // discard;
     }
     FragColor = vec4(outColor, alpha);
 
@@ -130,12 +155,5 @@ void main()
         BrightColor = vec4(FragColor.rgb,0);
     } else {
         BrightColor = vec4(0, 0, 0,alpha);
-    }
-
-
-    //FragColor = texture(shadowMap[0], texPos);
-    //FragColor = vec4(shad, shad, shad, 1.0);
-
-    // FragColor = vec4(s, s, s, 1.0);
-    //FragColor = texture(shadowCube[0], worldPos.xyz - uPointLights[0].position);
+    } 
 }
