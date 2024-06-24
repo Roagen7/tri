@@ -12,9 +12,11 @@ endif()
 
 FetchContent_MakeAvailable(googletest)
 
-add_executable(engine_test 
-  sample_cube.cpp
+file(GLOB_RECURSE TEST_SOURCES
+    *.cpp
 )
+
+add_executable(engine_test ${TEST_SOURCES})
 
 target_link_libraries(
   engine_test

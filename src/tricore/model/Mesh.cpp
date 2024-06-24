@@ -255,7 +255,7 @@ bool Mesh::hasVertices(){
     OBJ format reference https://en.wikipedia.org/wiki/Wavefront_.obj_file
     NOTE: following case will not work - some vertices have texture/normal coords and some not
 */
-Mesh Mesh::fromStream(std::istream& input){
+Mesh::vnt_t Mesh::fromStream(std::istream& input){
     std::vector<glm::vec3> parsedVertices;
     std::vector<glm::vec3> parsedNormals;
     std::vector<glm::vec2> parsedTextures;
@@ -374,9 +374,8 @@ Mesh Mesh::fromStream(std::istream& input){
             std::cerr << "Warning, OBJ file has unsupported features: " << line << std::endl;
         }
     }
-    Mesh mesh;
-    mesh.setVertices(vertices).setNormals(normals).setTextureUnits(textures);
-    return mesh;
+   
+    return {vertices, normals, textures};
 }
 
 
@@ -387,5 +386,8 @@ Mesh Mesh::fromFile(const std::string& filename) {
         assert(0);
     }
     
-    return Mesh::fromStream(input);
+    const auto [vertices, normals, textures] = Mesh::fromStream(input);
+    Mesh mesh;
+    mesh.setVertices(vertices).setNormals(normals).setTextureUnits(textures);
+    return mesh;
 }

@@ -26,7 +26,12 @@ namespace tri::core {
         Mesh& setNormals(std::vector<glm::vec3> normals);
         Mesh& setTextureUnits(std::vector<glm::vec2> normals);
         static Mesh fromFile(const std::string& path);
-        static Mesh fromStream(std::istream& stream);
+
+        using vnt_t = std::tuple<
+        std::vector<glm::vec3>, 
+        std::vector<glm::vec3>,
+        std::vector<glm::vec2>>;
+        static vnt_t fromStream(std::istream& stream);
 
         bool hasVertices();
         void enableTesselation();
