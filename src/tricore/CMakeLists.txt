@@ -5,4 +5,4 @@ file(GLOB_RECURSE TRICORE_SOURCES
 )
 
 target_sources(tricore PUBLIC ${TRICORE_SOURCES})
-target_link_libraries(tricore PUBLIC glad triutil fmt glm glfw stb Boost::filesystem)
+target_link_libraries(tricore PUBLIC glad triutil fmt glm glfw stb Boost::filesystem Boost::range Boost::algorithm)
