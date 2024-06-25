@@ -1,10 +1,14 @@
 /*
-    this scene demonstrates shadows
+    this scene demonstrates:
+    > particles
+    > postprocessing
 */
 
 #include <tricore/tricore.h>
 #include <triutil/triutil.h>
 #include <triextra/triextra.h>
+
+#include <chrono>
 
 
 using namespace tri::core;
@@ -20,7 +24,7 @@ int main(){
     Window window("scene4", width, height);    
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     
-    ParticleGenerator generator;
+    auto generator = std::make_shared<FountainParticleGenerator>(Texture("examples/data/textures/particle.png"));
     Renderer renderer(*window.get(), camera);
     renderer
         .setPostprocessing<postprocess::InvertPostprocess>()
@@ -52,12 +56,16 @@ int main(){
             .color = {1, 1, 1},
             .intensity = 1
         }))
+        .add(generator)
     ;
 
     static constexpr auto R = 5.0;
     while (!glfwWindowShouldClose(window.get()))
-    {
+    {   
+        auto start = std::chrono::steady_clock::now();
         renderer.render();
         camera.poll(window.get());
+        auto elapsed = std::chrono::steady_clock::now() - start;
+        generator->update(elapsed.count()/1e9);
     }
 }

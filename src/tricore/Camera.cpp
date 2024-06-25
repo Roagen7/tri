@@ -13,7 +13,7 @@ glm::mat4 Camera::view() const{
     return glm::perspective(glm::radians(fov), w/h, config::CAMERA_NEAR_PLANE, config::CAMERA_FAR_PLANE) * glm::lookAt(pos, pos + dir, UP);
 }
 
-glm::vec3 Camera::getDir(){
+glm::vec3 Camera::getDir() const {
     return dir;
 }
 

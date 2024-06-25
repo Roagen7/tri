@@ -1,13 +1,11 @@
 /*
 small TODO list:
-> add hdr
 > add sprites
+> add cloth model
+> add hdr
 ...
 > add gui
-> add particles
 > add entity tree
-
-
 >dynamic lib for scenes (in gui) ?
 
 */

@@ -13,7 +13,7 @@ namespace tri::core {
     public:
         Camera(int w, int h, glm::vec3 pos, glm::vec3 dir): w(w), h(h), pos(pos), dir(dir), sens(100.f), speed(.5f), fov(90.0) {}
         void poll(GLFWwindow* window);
-        glm::vec3 getDir();
+        glm::vec3 getDir() const;
         glm::vec3 getPos();
         float getAspectRatio();
         float getFov();

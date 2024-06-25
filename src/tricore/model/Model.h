@@ -59,9 +59,7 @@ namespace tri::core {
         void drawBorder(const Camera& camera);
         void borderPrehook();
         // TODO: change to quaternion
-        glm::vec3 rotation{};
-        glm::vec3 translation{};
-        glm::vec3 scale{1, 1, 1};
+       
         bool transparency{false}, castShadow{false}, receiveShadow{false};
         std::unique_ptr<Program> material{};
 

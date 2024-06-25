@@ -1,5 +1,7 @@
 /*
-    this scene demonstrates shadows
+    this scene demonstrates:
+    > shadows
+    > bloom
 */
 
 #include <tricore/tricore.h>
