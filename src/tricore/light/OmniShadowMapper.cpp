@@ -26,7 +26,7 @@ void OmniShadowMapper::setup(int width, int height, unsigned int lightCount) {
     }
 }
 
-void OmniShadowMapper::populate(std::vector<std::shared_ptr<Model>>& models, std::vector<std::shared_ptr<PointLight>>& lights){
+void OmniShadowMapper::populate(std::vector<std::shared_ptr<SpatialIfc>>& models, std::vector<std::shared_ptr<PointLight>>& lights){
     for(auto i = 0u; i < lights.size(); i++){
         frame[i].bind();
         auto projectionMatrices = light::get_lightspace_matrices(*lights[i]);

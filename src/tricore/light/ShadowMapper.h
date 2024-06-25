@@ -4,6 +4,7 @@
 #include <vector>
 #include <tricore/model/Model.h>
 
+
 namespace tri::core::shadow {
     class ShadowMapper {
     public:
@@ -18,12 +19,12 @@ namespace tri::core::shadow {
         }
 
     protected:
-        void cast(std::vector<std::shared_ptr<tri::core::Model>>& models) {
+        void cast(std::vector<std::shared_ptr<tri::core::SpatialIfc>>& spatials) {
             glEnable(GL_DEPTH_TEST);
             glClear(GL_DEPTH_BUFFER_BIT);
             glDepthFunc(GL_LESS);
             // TODO: transparency might not work
-            for(const auto& model : models){
+            for(const auto& model : spatials){
                 if(!model->castsShadow()) continue;
                 model->draw(*program);
             }

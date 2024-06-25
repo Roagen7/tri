@@ -2,7 +2,7 @@
 
 #include "../Camera.h"
 
-
+#include "SpatialIfc.h"
 #include "Mesh.h"
 #include <tricore/program/materials/DefaultMaterial.h>
 #include <tricore/program/materials/LightMaterial.h>
@@ -11,7 +11,7 @@
 #include <map>
 
 namespace tri::core {
-    class Model {
+    class Model : public SpatialIfc {
     public:
         Model() {
             setMaterial<materials::DefaultMaterial>();
@@ -21,7 +21,7 @@ namespace tri::core {
         Model& setScaleXYZ(glm::vec3 scale);
         Model& setScale(glm::vec3 scale);
         Model& setTranslation(glm::vec3 translation);
-        glm::vec3 getWorldPosition() const;
+        glm::vec3 getWorldPosition() const override;
 
         Model& enableTransparency();
         
@@ -32,11 +32,11 @@ namespace tri::core {
         Model& enableCastShadow();
         Model& enableReceiveShadow();
 
-        bool castsShadow();
+        bool castsShadow() override;
 
-        bool hasTransparency();
+        bool hasTransparency() override;
 
-        const Program& getMaterial();
+        const Program& getMaterial() override;
 
         template<typename T, typename... A>
         Model& setMaterial(A&&... args){
@@ -46,10 +46,10 @@ namespace tri::core {
 
         Model& setMaterial(std::unique_ptr<Program>&& material);
 
-        void draw(const Camera& camera);
+        void draw(const Camera& camera) override;
         void draw(const Camera&, Program& material);
         void draw(glm::mat4 projection, Program& material);
-        void draw(Program& material);
+        void draw(Program& material) override;
 
     protected:
         Mesh mesh;

@@ -29,7 +29,7 @@ void DirectionalShadowMapper::setup(int width, int height, unsigned int lightCou
     }
 }
 
-void DirectionalShadowMapper::populate(std::vector<std::shared_ptr<Model>>& models, std::vector<std::shared_ptr<DirectionalLight>>& lights, Camera& camera){
+void DirectionalShadowMapper::populate(std::vector<std::shared_ptr<SpatialIfc>>& models, std::vector<std::shared_ptr<DirectionalLight>>& lights, Camera& camera){
     for(auto i = 0u; i < lights.size(); i++){
         frame[i].bind();
         for(auto j = 0; j < cascadeLayers.size(); j++){

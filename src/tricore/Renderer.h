@@ -15,6 +15,7 @@
 #include "./frame/ColorFrame.h"
 #include "./frame/OmniDepthFrame.h"
 #include "./model/meshes/Plane.h"
+#include "./model/SpatialIfc.h"
 #include "./frame/BasePostprocess.h"
 #include "./frame/postprocesses/BloomPostprocess.h"
 #include "./light/OmniShadowMapper.h"
@@ -27,7 +28,7 @@ class Renderer {
     public:
         Renderer(GLFWwindow& window, Camera& camera);
         void render();
-        Renderer& add(std::shared_ptr<Model> model);
+        Renderer& add(std::shared_ptr<SpatialIfc> spatial);
 
         Renderer& addLightSource(std::shared_ptr<PointLight> light);
         Renderer& addLightSource(std::shared_ptr<DirectionalLight> light);
@@ -52,11 +53,10 @@ class Renderer {
         void renderToFrame(Frame& frame);
         void copyToFrame(Frame* frame, postprocess::BasePostprocess& op);
         void populateShadowmaps();
-        void renderShadowView(Program& program);
 
-        void renderModels();
-        void renderModelsWithAlpha();
-        void renderModel(Model* model);
+        void renderSpatials();
+        void renderSpatialsWithAlpha();
+        void renderSpatial(SpatialIfc* spatial);
         void setupLights(const Program& material);
         void setupShadows(const Program& material);
 
@@ -68,7 +68,7 @@ class Renderer {
         GLFWwindow& window;
         Camera& camera;
 
-        std::vector<std::shared_ptr<Model>> models;
+        std::vector<std::shared_ptr<SpatialIfc>> spatials;
 
         Model skybox;
         glm::vec3 bgColor{};

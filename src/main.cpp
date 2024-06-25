@@ -4,6 +4,7 @@ small TODO list:
 > add sprites
 ...
 > add gui
+> add particles
 > add entity tree
 
 

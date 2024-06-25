@@ -3,4 +3,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR})
 
 add_subdirectory(${SOURCE_DIR}/tricore)
 add_subdirectory(${SOURCE_DIR}/triutil)
+add_subdirectory(${SOURCE_DIR}/triextra)
 target_link_libraries(${PROJECT_NAME} PRIVATE tricore triutil glfw linmath glad glm)

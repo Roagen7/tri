@@ -121,25 +121,15 @@ void Renderer::renderToFrame(Frame& frame){
 
     skybox.draw(camera);
 
-    renderModels();
-    renderModelsWithAlpha();
+    renderSpatials();
+    renderSpatialsWithAlpha();
+
     frame.unbind();
 }
 
 void Renderer::populateShadowmaps(){
-    directionalMaps.populate(models, directionalLights, camera);
-    omniDirectionalMaps.populate(models, pointLights);
-}
-
-void Renderer::renderShadowView(Program& program){
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glDepthFunc(GL_LESS);
-        // TODO: transparency might not work
-        for(const auto& model : this->models){
-            if(!model->castsShadow()) continue;
-            model->draw(program);
-        }
+    directionalMaps.populate(spatials, directionalLights, camera);
+    omniDirectionalMaps.populate(spatials, pointLights);
 }
 
 Renderer::Renderer(GLFWwindow& window, Camera& camera): 
@@ -200,24 +190,24 @@ void Renderer::setupShadows(const Program& material){
     omniDirectionalMaps.attach(material, pointLights);
 }
 
-void Renderer::renderModels(){
+void Renderer::renderSpatials(){
     glDepthFunc(GL_LESS); 
 
-    for(const auto& model : this->models){
+    for(const auto& model : this->spatials){
         if(model->hasTransparency()){
             continue;
         }
-        renderModel(model.get());
+        renderSpatial(model.get());
     }
 }
 
-void Renderer::renderModelsWithAlpha(){
+void Renderer::renderSpatialsWithAlpha(){
     glDepthFunc(GL_LESS); 
 
     auto pos = camera.getPos();
-    std::map<float, Model*> sorted;
+    std::map<float, SpatialIfc*> sorted;
 
-    for(const auto& model : this->models){
+    for(const auto& model : this->spatials){
         float distance = glm::length(pos - model->getWorldPosition());
         if(!model->hasTransparency()){
             continue;
@@ -226,12 +216,12 @@ void Renderer::renderModelsWithAlpha(){
     }
 
     for ( const auto& [_, model] : boost::adaptors::reverse(sorted)){
-        renderModel(model);
+        renderSpatial(model);
     }
 
 }
 
-void Renderer::renderModel(Model* model){
+void Renderer::renderSpatial(SpatialIfc* model){
     const auto& material = model->getMaterial();
     setupLights(material);
     setupShadows(material);
@@ -248,8 +238,8 @@ Renderer& Renderer::setSkybox(Cubemap&& cubemap){
     return *this;
 }
 
-Renderer& Renderer::add(std::shared_ptr<Model> model){
-    models.push_back(model);
+Renderer& Renderer::add(std::shared_ptr<SpatialIfc> spatial){
+    spatials.push_back(spatial);
     return *this;
 }
 

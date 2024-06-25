@@ -1,3 +1,7 @@
+/*
+    this scene demonstrates shadows
+*/
+
 #include <tricore/tricore.h>
 #include <triutil/triutil.h>
 
@@ -94,7 +98,7 @@ int main(){
                 ;
             return floor;
         }())
-        // .addLightSource(light)
+        .addLightSource(light)
         // .addLightSource(light::make_point({
         //     .pos = secondLightPos,
         //     .color = {1, 1, 1},
@@ -104,7 +108,7 @@ int main(){
         //         .quadratic = 0.0
         //     }
         // }))
-        .addLightSource(dirLight)
+        // .addLightSource(dirLight)
         // .addLightSource(light::make_dir({
         //     .direction = {-1, -1, 0},
         //     .color = {1, 1, 1},
