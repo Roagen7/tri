@@ -2,6 +2,7 @@
 
 #include <tricore/program/Program.h>
 #include <tricore/texture/Texture.h>
+#include <tricore/texture/TextureResourceManager.h>
 #include "SolidMaterial.h"
 #include <fmt/format.h>
 
@@ -16,14 +17,25 @@ namespace tri::core::materials {
         void use() const override {
             SolidMaterial::use();
 
-            glActiveTexture(GL_TEXTURE0);
-            texture.bind();
-            glActiveTexture(GL_TEXTURE1);
-            specularMap.bind();
-            glActiveTexture(GL_TEXTURE2);
-            normalMap.bind();
-            // glActiveTexture(GL_TEXTURE3);
-            // heightMap.bind();
+            if(texture){
+                glActiveTexture(GL_TEXTURE0);
+                texture->bind();
+            }
+            
+            if(specularMap){
+                glActiveTexture(GL_TEXTURE1);
+                specularMap->bind();
+            }
+          
+            if(normalMap){
+                glActiveTexture(GL_TEXTURE2);
+                normalMap->bind();
+            }
+
+            if(heightMap){
+                glActiveTexture(GL_TEXTURE3);
+                heightMap->bind();
+            }
         }
 
     public:
@@ -34,48 +46,48 @@ namespace tri::core::materials {
             uniformInt("hasHeightMap", 0);
         }
 
-        void setTexture(Texture&& texture){
+        void setTexture(texid_t id){
             uniformInt("hasTexture", 1);
-            this->texture = std::move(texture);
+            texture = &TextureResourceManager::texture(id);
             glActiveTexture(GL_TEXTURE0);
-            this->texture.bind();
+            texture->bind();
             uniformInt("texture0", 0);
-            this->texture.unbind();
+            texture->unbind();
         }
 
-        void setSpecularMap(Texture&& texture){
+        void setSpecularMap(texid_t id){
             uniformInt("hasSpecularMap", 1);
-            specularMap = std::move(texture);
+            specularMap = &TextureResourceManager::texture(id);
             glActiveTexture(GL_TEXTURE1);
-            specularMap.bind();
+            specularMap->bind();
             uniformInt("specularMap", 1);
-            this->specularMap.unbind();
+            specularMap->unbind();
         }
 
 
-        void setNormalMap(Texture&& texture){
+        void setNormalMap(texid_t id){
             uniformInt("hasNormalMap", 1);
-            normalMap = std::move(texture);
+            normalMap = &TextureResourceManager::texture(id);
             glActiveTexture(GL_TEXTURE2);
-            normalMap.bind();
+            normalMap->bind();
             uniformInt("normalMap", 2);
-            this->normalMap.unbind();
+            normalMap->unbind();
         }
 
-        void setHeightMap(Texture&& texture, float heightScale){
+        void setHeightMap(texid_t id, float heightScale){
             uniformInt("hasHeightMap", 1);
             uniformFloat("height_scale", heightScale);
-            heightMap = std::move(texture);
+            heightMap = &TextureResourceManager::texture(id);
             glActiveTexture(GL_TEXTURE3);
-            heightMap.bind();
+            heightMap->bind();
             uniformInt("heightMap", 3);
-            this->heightMap.unbind();
+            heightMap->unbind();
         }
 
-        Texture texture;
-        Texture specularMap;
-        Texture normalMap;
-        Texture heightMap;
+        Texture* texture{};
+        Texture* specularMap{};
+        Texture* normalMap{};
+        Texture* heightMap{};
     };
 
     class TextureMaterialBuilder{
@@ -90,24 +102,24 @@ namespace tri::core::materials {
             return *this;
         }
 
-        TextureMaterialBuilder& setTexture(Texture&& texture){
-            textureMaterial->setTexture(std::move(texture));
+        TextureMaterialBuilder& setTexture(texid_t texture){
+            textureMaterial->setTexture(texture);
             return *this;
         }
 
-        TextureMaterialBuilder& setSpecularMap(Texture&& texture){
-            textureMaterial->setSpecularMap(std::move(texture));
+        TextureMaterialBuilder& setSpecularMap(texid_t texture){
+            textureMaterial->setSpecularMap(texture);
             return *this;
         }
 
 
-        TextureMaterialBuilder& setNormalMap(Texture&& texture){
-            textureMaterial->setNormalMap(std::move(texture));
+        TextureMaterialBuilder& setNormalMap(texid_t texture){
+            textureMaterial->setNormalMap(texture);
             return *this;
         }
 
-        TextureMaterialBuilder& setHeightMap(Texture&& texture, float heightScale){
-            textureMaterial->setHeightMap(std::move(texture), heightScale);
+        TextureMaterialBuilder& setHeightMap(texid_t texture, float heightScale){
+            textureMaterial->setHeightMap(texture, heightScale);
             return *this;
         }
 
@@ -115,10 +127,7 @@ namespace tri::core::materials {
             return std::move(textureMaterial);
         }
 
-   
     private:
-        // HACK: for some reason without this texture the framebuffer refuses to work
-        Texture texture;
         std::unique_ptr<TextureMaterial> textureMaterial;
 
     };

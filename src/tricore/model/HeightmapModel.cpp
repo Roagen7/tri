@@ -3,6 +3,7 @@
 #include "./meshes/Plane.h"
 #include <fmt/format.h>
 #include <tricore/program/materials/TextureMaterial.h>
+#include <tricore/texture/TextureResourceManager.h>
 #include <tricore/program/ShaderLib.h>
 #include <triutil/files.h>
 
@@ -14,7 +15,7 @@ static constexpr auto NUM_PATCH_PTS = 3;
 
 class HeightmapMaterial : public TextureMaterial {
 public:
-    HeightmapMaterial(Texture&& heightmap, float heightScale): TextureMaterial(){
+    HeightmapMaterial(texid_t heightmap, float heightScale): TextureMaterial(){
         glPatchParameteri(GL_PATCH_VERTICES, NUM_PATCH_PTS);
         GLint maxTessLevel;
         glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
@@ -24,7 +25,7 @@ public:
             fmt::format("{}/{}/tcs.glsl", SHADER_PATH, HEIGHTMAPPED_VS)
         );
         compileShaders();
-        setHeightMap(std::move(heightmap), 0.0);
+        setHeightMap(heightmap, 0.0);
         uniformFloat("heightScale", heightScale);
         uniformVec3("uColor", {1, 0, 0});
         uniformInt("flatColor", 1);
@@ -32,8 +33,8 @@ public:
 };
 
 
-HeightmapModel::HeightmapModel(Texture&& heightmap, float heightScale): Model(){
+HeightmapModel::HeightmapModel(texid_t heightmap, float heightScale): Model(){
     setMesh(meshes::Plane());
-    setMaterial(std::make_unique<HeightmapMaterial>(std::move(heightmap), heightScale));
+    setMaterial(std::make_unique<HeightmapMaterial>(heightmap, heightScale));
     mesh.enableTesselation();
 }

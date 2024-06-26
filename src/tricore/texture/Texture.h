@@ -7,7 +7,7 @@ namespace tri::core {
     class Texture {
     public:
         Texture() = default;
-        Texture(const std::string& imagePath);
+        Texture(const std::string& imagePath, bool doCleanup=true);
 
         Texture(const Texture& other);
         Texture& operator=(const Texture& other);
@@ -25,6 +25,7 @@ namespace tri::core {
         GLuint texture{};
         std::string path;
         int width, height, numChannels;
+        bool doCleanup;
 
         void loadTexture(const std::string& path);
     };

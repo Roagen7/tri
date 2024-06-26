@@ -40,7 +40,7 @@ int main(void){
     renderer
         .setSkybox(std::move(skybox))
         .add([](){
-            auto heightmapModel = std::make_shared<HeightmapModel>(std::move(Texture("examples/data/textures/iceland_heightmap.png")), 0.5);
+            auto heightmapModel = std::make_shared<HeightmapModel>(TextureResourceManager::texture("examples/data/textures/iceland_heightmap.png"), 0.5);
             heightmapModel->setScaleXYZ({100, 100, 100}).setTranslation({0, -4.0, 0.0});
             
             return heightmapModel;

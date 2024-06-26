@@ -104,7 +104,6 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(src)
 add_subdirectory(examples)
 
-
 set(BUILD_TEST true)
 
 if(${BUILD_TEST})

@@ -19,3 +19,4 @@
 
 #include <tricore/texture/Texture.h>
 #include <tricore/texture/Cubemap.h>
+#include <tricore/texture/TextureResourceManager.h>

@@ -25,7 +25,7 @@
 - [ ] fluid simulation
 
 ## Refactor
-- [ ] change textures to texture resource manager
+- [x] change textures to texture resource manager
 - [ ] add missing consts
 - [ ] better naming of bloom frame etc.
 
@@ -36,14 +36,3 @@
 - [x] loading mesh from file
 - [ ] assimp compatibility
 - [x] material system
-
-
-/*
-small TODO list:
-> add hdr
-...
-> add gui
-> add entity tree
->dynamic lib for scenes (in gui) ?
-
-*/

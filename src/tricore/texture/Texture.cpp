@@ -27,7 +27,7 @@ void Texture::loadTexture(const std::string& path){
 }
 
 
-Texture::Texture(const std::string& imagePath): path(imagePath) {
+Texture::Texture(const std::string& imagePath, bool doCleanup): path(imagePath), doCleanup(doCleanup) {
     loadTexture(imagePath);
 }
 
@@ -40,7 +40,9 @@ void Texture::unbind() const{
 }
 
 Texture::~Texture(){
-    cleanup();
+    if(doCleanup){
+        cleanup();
+    }
 }
 
 void Texture::cleanup(){

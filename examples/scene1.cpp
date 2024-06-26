@@ -27,6 +27,7 @@ int main(void){
     auto model2 = std::make_shared<Model>();
     auto model3 = std::make_shared<Model>();
 
+    auto tid = TextureResourceManager::texture("examples/data/textures/container2.png");
 
 
     model2->setMesh(Plane());
@@ -42,23 +43,23 @@ int main(void){
     model->setMesh(Sphere())
     .setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
-        .setTexture(std::move(Texture("examples/data/textures/container2.png")))
-        .setSpecularMap(std::move(Texture("examples/data/textures/container2_specular.png")))
+        .setTexture(TextureResourceManager::texture("examples/data/textures/container2.png"))
+        .setSpecularMap(TextureResourceManager::texture("examples/data/textures/container2_specular.png"))
         .build()
     );
 
     TextureMaterialBuilder builder; 
 
     model2->setMaterial(TextureMaterialBuilder().setShininess(1024)
-        .setTexture(Texture("examples/data/textures/bricks.jpg"))
-        .setHeightMap(Texture("examples/data/textures/bricks_heightmap.jpg"), 0.05f)
-        .setNormalMap(Texture("examples/data/textures/bricks_normal.jpg")).build())
+        .setTexture(TextureResourceManager::texture("examples/data/textures/bricks.jpg"))
+        .setHeightMap(TextureResourceManager::texture("examples/data/textures/bricks_heightmap.jpg"), 0.05f)
+        .setNormalMap(TextureResourceManager::texture("examples/data/textures/bricks_normal.jpg")).build())
         .setBorder({0, 1, 0}, 0.10);
 
     model3->setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
-        .setTexture(std::move(Texture("examples/data/textures/container2.png")))
-        .setSpecularMap(std::move(Texture("examples/data/textures/container2_specular.png")))
+        .setTexture(TextureResourceManager::texture("examples/data/textures/container2.png"))
+        .setSpecularMap(TextureResourceManager::texture("examples/data/textures/container2_specular.png"))
         .build()
     ).setBorder({1, 0, 0}, 0.05);
 
@@ -91,8 +92,8 @@ int main(void){
             wallModel->setMesh(Plane())
                 .setMaterial(TextureMaterialBuilder()
                     .setShininess(1024)
-                    .setTexture(std::move(Texture("examples/data/textures/brickwall.jpg")))
-                    .setNormalMap(std::move(Texture("examples/data/textures/brickwall_normal.jpg")))
+                    .setTexture(TextureResourceManager::texture("examples/data/textures/brickwall.jpg"))
+                    .setNormalMap(TextureResourceManager::texture("examples/data/textures/brickwall_normal.jpg"))
                     .build()
                 ).setScaleXYZ({20, 20, 20})
                 .setTranslation({-5, -2, -10});
@@ -102,7 +103,7 @@ int main(void){
             auto grassModel = std::make_shared<Model>();
             grassModel->setMesh(Plane())
                 .setMaterial(TextureMaterialBuilder()
-                    .setTexture(std::move(Texture("examples/data/textures/grass.png")))
+                    .setTexture(TextureResourceManager::texture("examples/data/textures/grass.png"))
                     .build()
                 )
                 .enableTransparency()
@@ -115,7 +116,7 @@ int main(void){
             auto grassModel = std::make_shared<Model>();
             grassModel->setMesh(Plane())
                 .setMaterial(TextureMaterialBuilder()
-                    .setTexture(std::move(Texture("examples/data/textures/grass.png")))
+                    .setTexture(TextureResourceManager::texture("examples/data/textures/grass.png"))
                     .build()
                 )
                 .enableTransparency()
