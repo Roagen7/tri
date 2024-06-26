@@ -8,21 +8,24 @@
 namespace tri::core {
     class SpatialIfc {
     public:
-        virtual void draw(const Camera& camera) = 0;
-        virtual void draw(Program& material) = 0;
-        virtual glm::vec3 getWorldPosition() const = 0;
+        virtual void draw(const Camera& camera) {};
+        virtual void draw(Program& material) {};
         virtual const Program& getMaterial() = 0;
         virtual bool castsShadow() = 0;
         virtual bool hasTransparency() = 0;
+        virtual bool isOnScreenPlane() const { return false; };
+
+
+        SpatialIfc& setRotationXYZ(glm::vec3 rotation);
+        SpatialIfc& setScaleXYZ(glm::vec3 scale);
+        SpatialIfc& setTranslation(glm::vec3 translation);
+        glm::vec3 getWorldPosition() const;
+
+        virtual ~SpatialIfc() {}
 
     protected:
-        void setupSpaceMatrices(const Program& shader){
-            shader.uniformMat4("rotation", glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.x, {1, 0, 0})
-            * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.y, {0, 1, 0})
-            * glm::rotate(glm::identity<glm::mat4x4>(), (float)rotation.z, {0, 0, 1}));
-            shader.uniformMat4("transform", glm::translate(glm::identity<glm::mat4x4>(), translation) * glm::scale(glm::identity<glm::mat4x4>(), scale));
-        }
-
+        void setupSpaceMatrices(const Program& shader);
+       
 
         glm::vec3 rotation{};
         glm::vec3 translation{0, 0, 0};

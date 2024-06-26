@@ -121,8 +121,10 @@ void Renderer::renderToFrame(Frame& frame){
 
     skybox.draw(camera);
 
+    /* TODO: I don't like how this looks, will probably refactor it to a single function */
     renderSpatials();
     renderSpatialsWithAlpha();
+    renderSpatialsOnScreenPlane();
 
     frame.unbind();
 }
@@ -194,12 +196,23 @@ void Renderer::renderSpatials(){
     glDepthFunc(GL_LESS); 
 
     for(const auto& model : this->spatials){
-        if(model->hasTransparency()){
+        if(model->hasTransparency() || model->isOnScreenPlane()){
             continue;
         }
         renderSpatial(model.get());
     }
 }
+
+void Renderer::renderSpatialsOnScreenPlane(){
+    glDepthFunc(GL_LESS); 
+    for(const auto& model : this->spatials){
+        if(!model->isOnScreenPlane()){
+            continue;
+        }
+        renderSpatial(model.get());
+    }
+}
+
 
 void Renderer::renderSpatialsWithAlpha(){
     glDepthFunc(GL_LESS); 
@@ -209,7 +222,7 @@ void Renderer::renderSpatialsWithAlpha(){
 
     for(const auto& model : this->spatials){
         float distance = glm::length(pos - model->getWorldPosition());
-        if(!model->hasTransparency()){
+        if(!model->hasTransparency() || model->isOnScreenPlane()){
             continue;
         } 
         sorted[distance] = model.get();

@@ -6,16 +6,6 @@
 using namespace tri::core;
 using namespace tri::core::materials;
 
-Model& Model::setRotationXYZ(glm::vec3 rotation){
-    this->rotation = rotation;
-    return *this;
-}
-
-Model& Model::setTranslation(glm::vec3 translation){
-    this->translation = translation;
-    return *this;
-}
-
 Model& Model::setMesh(const Mesh& mesh){
     this->mesh = mesh;
     return *this;
@@ -30,16 +20,6 @@ Model& Model::setMaterial(std::unique_ptr<Program>&& material){
 const Program& Model::getMaterial(){
     if(!material) assert(0);
     return *material;
-}
-
-glm::vec3 Model::getWorldPosition() const{
-    return this->translation;
-}
-
-
-Model& Model::setScaleXYZ(glm::vec3 scale){
-    this->scale = scale;
-    return *this;
 }
 
 void Model::borderPrehook(){
@@ -120,8 +100,8 @@ Model& Model::enableReceiveShadow(){
 }
 
 Model& Model::setBorder(glm::vec3 color, float thickness){
-    // border.material = std::make_unique<LightMaterial>(color);
-    // border.thickness = thickness;
+    border.material = std::make_unique<LightMaterial>(color);
+    border.thickness = thickness;
     return *this;
 }
 

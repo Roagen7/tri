@@ -15,12 +15,11 @@ namespace tri::extra {
             virtual void update(float dt) = 0;
             void draw(const tri::core::Camera& camera);
             void draw(tri::core::Program& material) {}
-            glm::vec3 getWorldPosition() const;
             const tri::core::Program& getMaterial();
             bool castsShadow() { return false; }
             bool hasTransparency() { return true; }
 
-            ~ParticleGenerator();
+            ~ParticleGenerator() override;
 
         protected:
             std::vector<Particle> particles;

@@ -61,7 +61,6 @@ ParticleGenerator::~ParticleGenerator(){
 
 void ParticleGenerator::draw(const Camera& camera){
     shader->use();
-    // TODO: move it to SpatialIfc
     shader->uniformMat4("projection", camera.view());
     setupSpaceMatrices(*shader);
    
@@ -77,10 +76,6 @@ void ParticleGenerator::draw(const Camera& camera){
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }
-}
-
-glm::vec3 ParticleGenerator::getWorldPosition() const {
-    return translation;
 }
 
 const tri::core::Program& ParticleGenerator::getMaterial() {

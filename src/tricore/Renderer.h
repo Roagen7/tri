@@ -56,6 +56,7 @@ class Renderer {
 
         void renderSpatials();
         void renderSpatialsWithAlpha();
+        void renderSpatialsOnScreenPlane();
         void renderSpatial(SpatialIfc* spatial);
         void setupLights(const Program& material);
         void setupShadows(const Program& material);

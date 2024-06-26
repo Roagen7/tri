@@ -17,12 +17,6 @@ namespace tri::core {
             setMaterial<materials::DefaultMaterial>();
         };
 
-        Model& setRotationXYZ(glm::vec3 rotation);
-        Model& setScaleXYZ(glm::vec3 scale);
-        Model& setScale(glm::vec3 scale);
-        Model& setTranslation(glm::vec3 translation);
-        glm::vec3 getWorldPosition() const override;
-
         Model& enableTransparency();
         
         Model& setMesh(const Mesh& mesh);

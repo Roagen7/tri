@@ -59,20 +59,20 @@ int main(){
         .add([](){
             auto cubeModel = std::make_shared<Model>();
             cubeModel->setMesh(VertexCube())
-            .setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 0.0})
-            .setTranslation({2, 0.5, 1})
             .enableCastShadow()
             .enableReceiveShadow()
+            .setMaterial<SolidMaterial>(glm::vec3{1.0, 0.0, 0.0})
+            .setTranslation({2, 0.5, 1})
             ;
             return cubeModel;
         }())
         .add([](){
             auto capsule = std::make_shared<Model>();
             capsule->setMesh(Mesh::fromFile("examples/data/mesh/textured_with_normals.obj"))
-            .setMaterial<SolidMaterial>(glm::vec3{0.0, 0.0, 1.0}, 1.0, 0.3, 1.0)
-            .setTranslation({0.0f, 1.5f, 0.0})
             .enableCastShadow()
             .enableReceiveShadow()
+            .setMaterial<SolidMaterial>(glm::vec3{0.0, 0.0, 1.0}, 1.0, 0.3, 1.0)
+            .setTranslation({0.0f, 1.5f, 0.0})
             ;
             return capsule;
         }())
@@ -88,6 +88,8 @@ int main(){
         .add([](){
             auto floor = std::make_shared<Model>();
             floor->setMesh(Plane())
+                .enableCastShadow()
+                .enableReceiveShadow()
                 .setMaterial(TextureMaterialBuilder()
                     .setShininess(1024)
                     .setTexture(std::move(Texture("examples/data/textures/brickwall.jpg")))
@@ -95,8 +97,6 @@ int main(){
                     .build()
                 ).setScaleXYZ({20, 20, 20})
                 .setTranslation({0, 0, 0})
-                .enableCastShadow()
-                .enableReceiveShadow()
                 ;
             return floor;
         }())

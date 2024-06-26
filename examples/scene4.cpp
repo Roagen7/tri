@@ -25,6 +25,8 @@ int main(){
     Camera camera(width, height, {0, 0, 3.0}, {0, 0, -1.0f});
     
     auto generator = std::make_shared<FountainParticleGenerator>(Texture("examples/data/textures/particle.png"));
+    generator->setRotationXYZ({M_PI/2, 0, 0});
+    generator->setScaleXYZ({3, 3, 3});
     Renderer renderer(*window.get(), camera);
     renderer
         .setPostprocessing<postprocess::InvertPostprocess>()
@@ -37,8 +39,19 @@ int main(){
             .back = "examples/data/skybox/space/back.png"
         }))
         .add([](){
+            auto crosshair = std::make_shared<Sprite>(Texture("examples/data/textures/crosshair.png"));
+            crosshair->setScaleXYZ({0.02, 0.02, 1.0});
+            return crosshair;
+        }())
+        .add([](){
+            auto wall = std::make_shared<Sprite>(Texture("examples/data/textures/wall.jpg"));
+            return wall;
+        }())
+        .add([](){
             auto floor = std::make_shared<Model>();
             floor->setMesh(Plane())
+                .enableCastShadow()
+                .enableReceiveShadow()
                 .setMaterial(TextureMaterialBuilder()
                     .setShininess(1024)
                     .setTexture(std::move(Texture("examples/data/textures/brickwall.jpg")))
@@ -46,8 +59,6 @@ int main(){
                     .build()
                 ).setScaleXYZ({20, 20, 20})
                 .setTranslation({0, 0, 0})
-                .enableCastShadow()
-                .enableReceiveShadow()
                 ;
             return floor;
         }())

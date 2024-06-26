@@ -52,8 +52,8 @@ int main(void){
     model2->setMaterial(TextureMaterialBuilder().setShininess(1024)
         .setTexture(Texture("examples/data/textures/bricks.jpg"))
         .setHeightMap(Texture("examples/data/textures/bricks_heightmap.jpg"), 0.05f)
-        .setNormalMap(Texture("examples/data/textures/bricks_normal.jpg")).build());
-    //.setBorder({0, 1, 0}, 0.10);
+        .setNormalMap(Texture("examples/data/textures/bricks_normal.jpg")).build())
+        .setBorder({0, 1, 0}, 0.10);
 
     model3->setMaterial(TextureMaterialBuilder()
         .setShininess(32.0)
@@ -69,7 +69,7 @@ int main(void){
 
     Renderer renderer(*window.get(), camera);
     renderer
-        .setPostprocessing<postprocess::GrayscalePostprocess>()
+        // .setPostprocessing<postprocess::GrayscalePostprocess>()
         .setSkybox(std::move(cubemap))
         .add(model)
         .add([](){
@@ -105,9 +105,10 @@ int main(void){
                     .setTexture(std::move(Texture("examples/data/textures/grass.png")))
                     .build()
                 )
+                .enableTransparency()
                 .setRotationXYZ({M_PI/2, 0, 0})
                 .setTranslation({-5, -1, -10})
-                .setScaleXYZ({5, 5, 5}).enableTransparency();
+                .setScaleXYZ({5, 5, 5});
             return grassModel;
         }())
         .add([](){
@@ -117,9 +118,10 @@ int main(void){
                     .setTexture(std::move(Texture("examples/data/textures/grass.png")))
                     .build()
                 )
+                .enableTransparency()
                 .setRotationXYZ({M_PI/2, 0, 0})
                 .setTranslation({-5, -1, -12})
-                .setScaleXYZ({5, 5, 5}).enableTransparency();
+                .setScaleXYZ({5, 5, 5});
             return grassModel;
         }())
         .addLightSource(light::make_point({

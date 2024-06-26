@@ -26,15 +26,15 @@ cmake --build build/ --config Debug --target <target>
 ## Screenshots
 
 ### Heightmap with tesselation
-![heightmap](examples/images/heightmap.png)
+![heightmap](doc/media/heightmap.png)
 
 ### Example particles generator
-![heightmap](examples/images/particles.png)
+![heightmap](doc/media/particles.png)
 
 ### Shadows
-![shadows](examples/images/shadows.png)
+![shadows](doc/media/shadows.png)
 
 ### Scene creation and grayscale postprocessing
-![scene](examples/images/scene1.png)
+![scene](doc/media/scene1.png)
 
 
