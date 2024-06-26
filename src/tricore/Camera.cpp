@@ -30,6 +30,9 @@ float Camera::getFov(){
     return fov;
 }
 
+std::pair<float, float> Camera::getScreenDimensions() const {
+    return {w, h};
+}
 
 void Camera::poll(GLFWwindow *window) {
     int iWidth, iHeight;

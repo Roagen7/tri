@@ -40,12 +40,14 @@ int main(){
         }))
         .add([](){
             auto crosshair = std::make_shared<Sprite>(Texture("examples/data/textures/crosshair.png"));
-            crosshair->setScaleXYZ({0.02, 0.02, 1.0});
+            crosshair->setDimensions({100, 100});
+            
             return crosshair;
         }())
         .add([](){
-            auto wall = std::make_shared<Sprite>(Texture("examples/data/textures/wall.jpg"));
-            return wall;
+            auto sprite = std::make_shared<Sprite>(Texture("examples/data/textures/alucard.png"));
+            sprite->setDimensions({200, 200}).setTranslation({0.5, 0.5, 0.0}).setRotationXYZ({0, M_PI, M_PI});
+            return sprite;
         }())
         .add([](){
             auto floor = std::make_shared<Model>();

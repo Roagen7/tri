@@ -16,6 +16,7 @@ namespace tri::core {
         glm::vec3 getDir() const;
         glm::vec3 getPos();
         float getAspectRatio();
+        std::pair<float, float> getScreenDimensions() const;
         float getFov();
         glm::mat4 view() const;
 

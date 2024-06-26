@@ -12,6 +12,7 @@ namespace tri::extra {
             Sprite(tri::core::Texture&& texture); 
             void draw(const tri::core::Camera& camera);
             const tri::core::Program& getMaterial();
+            Sprite& setDimensions(std::pair<float, float> dimensions);
             bool castsShadow() override { return false; }
             bool hasTransparency() override { return true; }
             bool isOnScreenPlane() const override { return true; }
@@ -20,5 +21,6 @@ namespace tri::extra {
         private:
             std::unique_ptr<tri::core::Program> shader;
             GLuint VAO, VBO;
+            std::pair<float, float> dimensions{0, 0};
     };
 }

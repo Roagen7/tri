@@ -54,6 +54,13 @@ Sprite::Sprite(Texture&& texture) : shader(std::make_unique<SpriteProgram>(std::
 
 void Sprite::draw(const Camera& camera){
     shader->use();
+    const auto [screenW, screenH] = camera.getScreenDimensions();
+    const auto [w, h] = this->dimensions;
+    shader->uniformFloat("screenWidth", screenW);
+    shader->uniformFloat("screenHeight", screenH);
+    shader->uniformFloat("width", w);
+    shader->uniformFloat("height", h);
+
     setupSpaceMatrices(*shader);
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -68,3 +75,9 @@ Sprite::~Sprite() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
+
+Sprite& Sprite::setDimensions(std::pair<float, float> dimensions){
+    this->dimensions = dimensions;
+    return *this;
+}
+

@@ -5,7 +5,7 @@
 - [x] PHONG
 - [x] omnidirectional shadows
 - [x] cascaded shadow maps
-- [ ] sprites
+- [x] sprites
 - [x] particle generator
 - [ ] spotlights
 - [ ] cel shader
@@ -17,6 +17,7 @@
 - [ ] hdr
 - [ ] SSAO
 - [ ] gamma correction
+- [ ] cloth mesh
 
 ## Physics
 - [ ] rigid body physics
